@@ -32,7 +32,7 @@ Your goal is to thoroughly gather the following data from the user: {data_requir
 
 - If the user's answer is incomplete or unclear, politely ask for clarification.
 - If the user is reluctant or unable to provide specifics, offer examples or suggestions.
-- If the user still cannot or will not specify, make a best guess or note it as an estimate.
+- If the user still cannot or will not specify, make a best guess or note it as an estimate or you can just leave it as an empty string, whichever you think is the best move.
 - Always remain empathetic, encouraging, and respectful.
 
 Once you believe you have all necessary data, say the exact phrase:
@@ -60,7 +60,7 @@ Be empathetic, but thorough.
         return f"Error calling OpenAI: {str(e)}"
 
 
-def parse_final_conversation_to_csv(
+def parse_final_conversation_to_json(
     conversation_history: List[Dict[str, str]],
     schema_instructions: str,
     fieldnames: Dict
@@ -160,10 +160,9 @@ if __name__ == "__main__":
             with open('daily_schema_fields.json', 'r') as f:
                 schema_fields = json.load(f)
 
-            parse_final_conversation_to_csv(
+            parse_final_conversation_to_json(
                 conversation, 
                 parse_instructions,
                 schema_fields
             )
-            print("Diary data saved to CSV. Exiting.")
             break
