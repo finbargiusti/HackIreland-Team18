@@ -8,7 +8,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
-	const ref = doc(firestore, 'forms/' + auth.currentUser?.uid + '/forms', $page.params.id);
+	const ref = doc(firestore, 'admin/' + auth.currentUser?.uid + '/forms', $page.params.id);
 
 	let loading = $state(true);
 	let errors: string[] = $state([]);
