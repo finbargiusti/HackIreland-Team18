@@ -6,7 +6,7 @@
 
   const create = async () => {
     const ref = await addDoc(collection(firestore, 'admin/'+ auth.currentUser!.uid + '/forms'),
-	{ title: "", inputs: [] }
+	{ title: "", inputs: [], users: [] }
     )
     goto('/admin/forms/edit/' + ref.id);
   }

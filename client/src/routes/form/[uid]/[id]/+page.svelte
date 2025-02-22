@@ -11,8 +11,6 @@
 
 	let chats: { id: string; system: boolean; data: string }[] = $state([]);
 
-	// add a load function
-
 	const { id, uid } = $page.params;
 
 	const ref = doc(firestore, 'admin/' + uid + '/forms', id);

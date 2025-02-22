@@ -61,7 +61,7 @@
 		>
 			<span class="absolute -inset-1.5"></span>
 			<span class="cursor-pointer font-medium text-slate-800 py-2 px-2">
-				{user ? `Logged in as ${user.displayName}` : 'Not logged in'}
+				{user ? `Logged in as ${user.email}` : 'Not logged in'}
 			</span>
 		</button>
 	</div>
