@@ -4,3 +4,4 @@ venv/
 python/server/firestore_key.json
 python/__pycache__
 python/server/__pycache__
+python/langchain/__pycache__
