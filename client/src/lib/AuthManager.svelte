@@ -68,7 +68,7 @@
 
 	{#if dropdownVisible}
 		<div
-			class="absolute z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-hidden"
+			class="absolute z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-hidden cursor-pointer"
 			role="menu"
 			aria-orientation="vertical"
 			aria-labelledby="user-menu-button"
@@ -77,7 +77,7 @@
 			{#if user}
 				<button
 					on:click={handleLogout}
-					class="block px-4 py-2 text-sm text-gray-700"
+					class="block px-4 py-2 text-sm text-gray-700 cursor-pointer"
 					role="menuitem"
 					tabindex="-1"
 					id="user-menu-item-2">Sign out</button
@@ -85,7 +85,7 @@
 			{:else}
 				<button
 					on:click={handleGoogleLogin}
-					class="block px-4 py-2 text-sm text-gray-700"
+					class="block px-4 py-2 text-sm text-gray-700 cursor-pointer"
 					role="menuitem"
 					tabindex="-1"
 					id="user-menu-item-0">Log in with Google</button
