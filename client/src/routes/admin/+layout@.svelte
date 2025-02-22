@@ -1,30 +1,33 @@
 <script lang="ts">
 	import '../../app.css';
 	import AuthManager from '$lib/AuthManager.svelte';
+	import {auth} from '$lib/firebase';
 	import { onMount } from 'svelte';
 	let { children } = $props();
 
-	let currentPath = $state('')
+	let currentPath = $state('');
 
 	let pages = $derived([
 		{
-			name: 'Create AI Form',
-			href: '/admin/create',
-			active: currentPath === '/admin/create',
+			name: 'Forms',
+			href: '/admin/form',
+			active: currentPath.startsWith('/admin/forms')
 		},
 		{
 			name: 'View Results',
 			href: '/admin/view',
-			active: currentPath === '/admin/view',
-		},
+			active: currentPath === '/admin/view'
+		}
 	]);
 
 	onMount(() => {
-		currentPath = window.location.pathname
-	})
-
+		currentPath = window.location.pathname;
+	});
 </script>
 
+{#if !auth.currentUser}
+	<h1>Not logged in!</h1>
+{:else}
 <div class="min-h-full">
 	<nav class="bg-gray-800">
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -43,10 +46,9 @@
 							{#each pages as page}
 								<a
 									href={page.href}
-									class={
-									page.active?
-									"rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" :
-									"rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"}
+									class={page.active
+										? 'rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white'
+										: 'rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white'}
 									>{page.name}</a
 								>
 							{/each}
@@ -134,8 +136,11 @@
 	</nav>
 
 	<main>
-		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-			{@render children()}
+		<div class="mx-auto max-w-7xl">
+			<div class="bg-white shadow-sm px-4 py-6 sm:px-6 lg:px-8">
+				{@render children()}
+			</div>
 		</div>
 	</main>
 </div>
+{/if}
