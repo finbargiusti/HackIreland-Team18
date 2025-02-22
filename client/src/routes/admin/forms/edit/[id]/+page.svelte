@@ -3,24 +3,28 @@
 	import { firestore, auth } from '$lib/firebase';
 	import FormInputItem from '$lib/form/FormInputItem.svelte';
 	import { inputIssues, type InputField } from '$lib/form/inputs';
-	import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+	import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 	import { page } from '$app/stores';
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
-	const ref = doc(firestore, 'forms/' + auth.currentUser?.uid + '/forms', $page.params.id);
+	const ref = doc(firestore, 'admin/' + auth.currentUser?.uid + '/forms', $page.params.id);
 
 	let loading = $state(true);
 	let errors: string[] = $state([]);
 	let title = $state('');
 	let inputs: InputField[] = $state([]);
 
+	let newUser = $state('')
+	let users: string[] = $state([])
+
 	getDoc(ref)
 		.then((doc) => {
 			if (doc.exists()) {
-				const data = doc.data() as { title: string; inputs: InputField[] };
+				const data = doc.data();
 				title = data.title as string;
 				inputs = data.inputs as InputField[];
+				users = data.users as string[];
 				loading = false;
 			} else {
 				errors.push('No such document!');
@@ -33,6 +37,14 @@
 	// reactively save the form with setDoc when inputs change
 
 	let saved = $state(false);
+
+	const addPatient = (email: string) => {
+		getDoc(ref).then((doc) => {
+			console.assert(doc.exists())
+			users.push(email);
+			updateDoc(ref, {users});
+		})
+	}
 
 	$effect(() => {
 		// validate inputs
@@ -53,7 +65,10 @@
 		}
 
 		if (!loading && e.length === 0) {
-			setDoc(ref, { title, inputs }).then(() => saved=true);
+			updateDoc(ref, { title, inputs }).then(() => saved=true).catch((error) => {
+				console.error('Error updating document:', error);
+				e.push('Error updating document');
+			});
 		}
 
 		errors = e;
@@ -131,6 +146,26 @@
 		</div>
 		<div class="flex flex-row justify-start gap-4">
 			<button class="btn danger" onclick={deleteSelf}> Delete Form </button>
+		</div>
+		<h2>Users:</h2>
+		<ul>
+			{#each users as u}
+			<li class="text-lg">
+					{u}
+			</li>
+			{/each}
+		</ul>
+		<div class="flex flex-row justify-start gap-4">
+			<input type="text" bind:value={newUser} placeholder="Add user (enter)"
+				onkeydown={
+				(e) => {
+					if (e.key === 'Enter') {
+						addPatient(newUser);
+						newUser = ''
+					}
+				}
+			}
+			/>
 		</div>
 	</div>
 {/if}

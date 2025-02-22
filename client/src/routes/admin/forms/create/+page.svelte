@@ -1,21 +1,15 @@
 <script lang="ts">
-	import AdminPageTitle from '$lib/AdminPageTitle.svelte';
   import {goto} from '$app/navigation';
 	import { firestore, auth } from '$lib/firebase';
 
-  import {doc, setDoc, getDoc} from 'firebase/firestore';
+  import {collection, addDoc} from 'firebase/firestore';
 
-  let name = $state('');
-
-  const create = () => {
-    const ref = doc(firestore, 'forms/'+ auth.currentUser!.uid + '/forms', name)
-    setDoc(ref, { title: "", inputs: [] });
-    goto('/admin/forms/edit/' + name);
+  const create = async () => {
+    const ref = await addDoc(collection(firestore, 'admin/'+ auth.currentUser!.uid + '/forms'),
+	{ title: "", inputs: [], users: [] }
+    )
+    goto('/admin/forms/edit/' + ref.id);
   }
+
+  create()
 </script>
-
-<AdminPageTitle>Create a new document:</AdminPageTitle>
-
-<input type="text" bind:value={name} placeholder="Name" />
-
-<button class="btn btn-primary" onclick={create}>Create</button>

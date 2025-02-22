@@ -10,12 +10,13 @@ import { goto } from '$app/navigation';
 
 let forms: {id: string, data: Form}[] = $state([]);
 
-getDocs(collection(firestore, 'forms/' + auth.currentUser?.uid + '/forms')).then((querySnapshot) => {
+getDocs(collection(firestore, 'admin/' + auth.currentUser?.uid + '/forms')).then((querySnapshot) => {
 	forms = querySnapshot.docs.map((doc) => ({
 		id: doc.id,
 		data: doc.data() as Form
 	}));
 });
+
 </script>
 
 <AdminPageTitle>Forms</AdminPageTitle>
@@ -29,6 +30,7 @@ getDocs(collection(firestore, 'forms/' + auth.currentUser?.uid + '/forms')).then
 		<div class="flex flex-row gap-2 items-center px-2 py-3 br-3 border">
 			<h2>{data.title}</h2>
 			<button class="btn" onclick={() => goto('/admin/forms/edit/' + id)}>Edit</button>
+			<a href={`/form/${auth.currentUser!.uid}/${id}`} class="btn">Form link</a>
 		</div>
 	{/each}
 
