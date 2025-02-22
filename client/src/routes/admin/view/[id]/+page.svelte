@@ -1,33 +1,37 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-  import {page} from '$app/stores';  
-  import {auth, firestore} from '$lib/firebase';
+	import { page } from '$app/stores';
+	import { auth, firestore } from '$lib/firebase';
 	import type { Form } from '$lib/form/inputs';
 	import type { User } from 'firebase/auth';
 
-  import {getDoc, doc} from 'firebase/firestore'
+	import { getDoc, doc } from 'firebase/firestore';
 
-  let {id} = $page.params;
+	let { id } = $page.params;
 
-  let data: Form | null = $state(null)
+	let data: Form | null = $state(null);
 
-  const getForm = (user: User|null) => {
-    // we wouldn't be here without user
-    if (user == null) return;
-    getDoc(doc(firestore, `admin/${user.uid}/forms`, id)).then(doc => {
-      if (doc.exists()) {
-        data = doc.data() as Form;
-      } else {
-        goto('/admin/404')
-      }
-    }).catch((res) => {
-      if (res.status==404) goto('/admin/404')
-      else console.error(res.body);
-    })
-  }
+	const getForm = (user: User | null) => {
+		// we wouldn't be here without user
+		if (user == null) return;
+		getDoc(doc(firestore, `admin/${user.uid}/forms`, id))
+			.then((doc) => {
+				if (doc.exists()) {
+					data = doc.data() as Form;
+					console.log(data);
+				} else {
+					goto('/admin/404');
+				}
+			})
+			.catch((res) => {
+				if (res.status == 404) goto('/admin/404');
+				else console.error(res.body);
+			});
+	};
 
-  auth.onAuthStateChanged(getForm)
+	auth.onAuthStateChanged(getForm);
 </script>
+
 <!---->
 <!-- {#if data} -->
 <!--   < -->
