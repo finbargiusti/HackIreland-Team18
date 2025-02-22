@@ -187,7 +187,7 @@
 }
 
 h1.happy {
-  @apply text-green-500 bg-gray-100;
+  @apply text-green-500 absolute left-0;
 	animation: happy 2s forwards;
 	position: absolute;
 }

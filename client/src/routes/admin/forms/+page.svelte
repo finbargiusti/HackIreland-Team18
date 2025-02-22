@@ -8,14 +8,17 @@ import type { Form } from '$lib/form/inputs.d.ts';
 import AdminPageTitle from '$lib/AdminPageTitle.svelte';
 import { goto } from '$app/navigation';
 
-let forms: {id: string, data: Form}[] = $state([]);
+let forms: {id: string, data: Form}[] = $state([])
 
-getDocs(collection(firestore, 'admin/' + auth.currentUser?.uid + '/forms')).then((querySnapshot) => {
-	forms = querySnapshot.docs.map((doc) => ({
-		id: doc.id,
-		data: doc.data() as Form
-	}));
-});
+const getForms = () =>
+	getDocs(collection(firestore, 'admin/' + auth.currentUser?.uid + '/forms')).then((querySnapshot) => {
+		forms = querySnapshot.docs.map((doc) => ({
+			id: doc.id,
+			data: doc.data() as Form
+		}));
+	});
+
+auth.onAuthStateChanged(getForms)
 
 </script>
 
