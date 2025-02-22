@@ -1,5 +1,5 @@
 type EnumData = {
-	type: 'choice';
+	type: 'enum';
 	values: string[];
 }
 
@@ -7,7 +7,11 @@ type InputNumber = {
 	type: 'number';
 }
 
-type InputData = EnumData | InputNumber;
+type InputString = {
+	type: 'string'
+}
+
+type InputData = EnumData | InputNumber | InputString;
 
 type InputField = {
 	description: string;
@@ -27,12 +31,10 @@ const inputIssues = (input: InputField, id: string): string[] => {
 		issues.push(id + ': Description is required');	
 	}
 	switch (input.data.type) {
-		case 'choice':
+		case 'enum':
 			if (input.data.values.length === 0) {
 				issues.push(id + ': Enum values are required');
 			}
-			break;
-		case 'number':
 			break;
 	}
 	return issues;

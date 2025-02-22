@@ -140,6 +140,12 @@
 			>
 				Add Numerical input
 			</button>
+			<button
+				class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+				onclick={() => (inputs = [...inputs, { description: '', data: { type: 'string' } }])}
+			>
+				Add String input
+			</button>
 		</div>
 		<div class="flex flex-row justify-start gap-4">
 			<button class="btn danger" onclick={deleteSelf}> Delete Form </button>
