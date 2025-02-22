@@ -53,8 +53,7 @@
 		}
 
 		if (!loading && e.length === 0) {
-			setDoc(ref, { title, inputs });
-			saved = true;
+			setDoc(ref, { title, inputs }).then(() => saved=true);
 		}
 
 		errors = e;
@@ -93,7 +92,7 @@
 	</ul>
 {/if}
 {#if saved}
-	<h1 class="happy">Saved!</h1>
+	<h1 class="happy">Synced!</h1>
 {/if}
 {#if !loading}
 	<input
@@ -140,6 +139,24 @@
 @import "tailwindcss";
 
 .input-item-wrap {
-	@apply flex flex-col items-start gap-2 px-2 py-2 border;
+	@apply flex flex-col items-stretch gap-2 px-2 py-2 border justify-stretch;
+}
+
+@keyframes happy {
+	0% {
+		opacity: 1;
+	}
+	80% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+h1.happy {
+  @apply text-green-500 bg-gray-100;
+	animation: happy 2s forwards;
+	position: absolute;
 }
 </style>
