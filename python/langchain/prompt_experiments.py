@@ -1,5 +1,3 @@
-# python/langchain/prompt_experiments.py
-
 import os
 import openai
 from dotenv import load_dotenv
@@ -13,42 +11,34 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def daily_diary_chat():
     """
-    A multi-turn diary chat. When user types 'done',
-    we ask GPT to parse the entire conversation into structured data,
-    then save it to a CSV file.
+    A multi-turn diary chat where the AI decides when it has enough info.
+    When the AI says 'I have all the information I need. We can finalize now.',
+    we parse and save automatically, then exit.
     """
 
-    # Enhanced system prompt for better clarifications and follow-up
+    # Modify the system prompt:
+    # Instruct the AI to finalize on its own, no 'done' from user.
     system_prompt = (
         "You are a compassionate clinical-trial AI assistant. "
         "Your goal is to guide patients through a daily diary while showing empathy and reassurance. "
-        "For each diary item (mood, wake time, sleep time, activities, exercise type, estimated calories burned, "
-        "total food intake, medications/supplements, and any symptoms/notes), if the patient's response is vague "
-        "or missing key information, politely ask for clarification or provide examples to help them estimate. "
-        "Only move on once you have a reasonable answer or the user prefers not to say. "
-        "Encourage the patient to share openly but gently, with examples if needed (e.g., 'Would you say that's "
-        "mostly cardio or strength training? About how many calories do you think that might have burned?'). "
-        "At the end, kindly invite the patient to type 'done' if they have nothing more to add. "
-        "Once the user says 'done', do not continue the conversation; simply acknowledge that "
-        "the diary is complete and thank them for their time."
+        "For each diary item (mood, wake time, sleep time, activities, etc.), ask clarifying questions if needed. "
+        "Once you believe you have all necessary data, say the exact phrase:\n\n"
+        "\"I have all the information I need. We can finalize now.\"\n\n"
+        "After that, do not ask further questions—just wait for the system to finalize. "
+        "Be empathetic, but thorough."
     )
 
     messages = [
         {"role": "system", "content": system_prompt}
     ]
 
-    print("Daily Diary: type your response or 'done' to finish the session.")
+    print("Hi there.\n")
     while True:
         user_input = input("User: ")
-        if user_input.lower() == "done":
-            parse_and_save_diary(messages)
-            print("Diary saved. Exiting.")
-            break
-
         messages.append({"role": "user", "content": user_input})
 
         try:
-            # Slow-stream the assistant's response so it feels more natural
+            # Slow-stream the assistant's response
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
@@ -70,7 +60,16 @@ def daily_diary_chat():
 
             ai_reply = "".join(collected_chunks)
             print()  # finish the line
+
+            # Add the assistant's response to the conversation
             messages.append({"role": "assistant", "content": ai_reply})
+
+            # Check if AI used the finalizing phrase
+            if "I have all the information I need. We can finalize now." in ai_reply:
+                print("\nAI indicated it's satisfied. Saving diary and exiting...")
+                parse_and_save_diary(messages)
+                print("Diary saved. Exiting.")
+                break
 
         except Exception as e:
             print("Error:", str(e))
@@ -80,30 +79,9 @@ def parse_and_save_diary(messages):
     Calls GPT again, instructing it to parse the entire conversation into
     structured fields, then writes that to a CSV.
     """
-
-    parse_instructions = (
-        "You are now a data parser. Review the entire conversation above. "
-        "Extract the key daily-diary info and produce a JSON with these fields:\n\n"
-        "{\n"
-        '  "date": "YYYY-MM-DD or blank",\n'
-        '  "mood": 3,                  // numeric 1–10\n'
-        '  "wake_time": "07:30",\n'
-        '  "sleep_time": "23:30",\n'
-        '  "hours_slept": 8,           // numeric hours or your best estimate\n'
-        '  "activity_type": "cardio",  // one word (cardio, strength, yoga, mixed, etc.)\n'
-        '  "estimated_calories_burned": 500,  // numeric\n'
-        '  "food_intake": 3000,        // numeric estimate of total calories\n'
-        '  "medications": "ibuprofen",\n'
-        '  "notes": "feeling nauseous, any other remarks"\n'
-        "}\n\n"
-        "Guidelines:\n"
-        "- If the user doesn't specify an activity type, try to infer or use 'mixed'.\n"
-        "- If the user doesn't give times, do your best guess or leave them blank.\n"
-        "- hours_slept is the difference between sleep_time and wake_time if known; else guess.\n"
-        "- For 'notes', keep it concise.\n"
-        "- Return ONLY valid JSON, no extra commentary.\n"
-        "If the user didn’t provide certain fields, fill them with blanks or zero.\n"
-    )
+    # Load the parse instructions from an external file
+    with open("daily_schema.txt", "r", encoding="utf-8") as f:
+        parse_instructions = f.read()
 
     parse_messages = messages + [
         {"role": "system", "content": parse_instructions}
@@ -113,7 +91,7 @@ def parse_and_save_diary(messages):
         parse_completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=parse_messages,
-            temperature=0,  # minimal creativity => more direct JSON
+            temperature=0,
             max_tokens=300
         )
         json_reply = parse_completion.choices[0].message.content.strip()
@@ -130,18 +108,8 @@ def parse_and_save_diary(messages):
         print(json_reply)
         return
 
-    fieldnames = [
-        "date",
-        "mood",
-        "wake_time",
-        "sleep_time",
-        "hours_slept",
-        "activity_type",
-        "estimated_calories_burned",
-        "food_intake",
-        "medications",
-        "notes"
-    ]
+    with open("daily_schema_fields.json", "r") as ff:
+        fieldnames = json.load(ff)
 
     csv_filename = "diary_data.csv"
     file_exists = os.path.isfile(csv_filename)
@@ -155,7 +123,6 @@ def parse_and_save_diary(messages):
         for fn in fieldnames:
             row[fn] = diary_data.get(fn, "")
 
-        # If GPT left date blank, fill with today's date
         if not row["date"]:
             row["date"] = str(datetime.date.today())
 
