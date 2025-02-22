@@ -10,7 +10,7 @@
 	let pages = $derived([
 		{
 			name: 'Forms',
-			href: '/admin/form',
+			href: '/admin/forms',
 			active: currentPath.startsWith('/admin/forms')
 		},
 		{

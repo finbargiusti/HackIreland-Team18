@@ -36,4 +36,9 @@ type InputField = {
 	data: InputData;
 }
 
-export type { InputField, InputData, EnumData }
+type Form = {
+	title: string,
+	inputs: InputField[]
+}
+
+export type { InputField, InputData, EnumData, Form }
