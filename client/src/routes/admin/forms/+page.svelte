@@ -11,13 +11,15 @@ import type { User } from 'firebase/auth';
 
 let forms: {id: string, data: Form}[] = $state([])
 
-const getForms = (user: User|null) =>
-	getDocs(collection(firestore, 'admin/' + user!.uid + '/forms')).then((querySnapshot) => {
+const getForms = (user: User|null) => {
+	if (user === null) return;
+	getDocs(collection(firestore, 'admin/' + user.uid + '/forms')).then((querySnapshot) => {
 		forms = querySnapshot.docs.map((doc) => ({
 			id: doc.id,
 			data: doc.data() as Form
 		}));
 	});
+}
 
 auth.onAuthStateChanged(getForms)
 

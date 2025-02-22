@@ -3,7 +3,6 @@
   import {page} from '$app/stores';  
   import {auth, firestore} from '$lib/firebase';
 	import type { Form } from '$lib/form/inputs';
-	import { error } from '@sveltejs/kit';
 	import type { User } from 'firebase/auth';
 
   import {getDoc, doc} from 'firebase/firestore'
@@ -14,7 +13,8 @@
 
   const getForm = (user: User|null) => {
     // we wouldn't be here without user
-    getDoc(doc(firestore, `admin/${user!.uid}/forms`, id)).then(doc => {
+    if (user == null) return;
+    getDoc(doc(firestore, `admin/${user.uid}/forms`, id)).then(doc => {
       if (doc.exists()) {
         data = doc.data() as Form;
       } else {
@@ -28,4 +28,7 @@
 
   auth.onAuthStateChanged(getForm)
 </script>
-
+<!---->
+<!-- {#if data} -->
+<!--   < -->
+<!-- {/if} -->
