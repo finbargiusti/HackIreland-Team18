@@ -1,3 +1,6 @@
 # ignore venv
 venv/
 .env
+python/server/firestore_key.json
+python/__pycache__
+python/server/__pycache__
