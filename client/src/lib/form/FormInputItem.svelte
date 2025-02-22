@@ -19,7 +19,11 @@
   </div>
 </div>
 
-{#if input.data.type === 'enum'}
+{#if input.data.type === 'choice'}
+  <InputEnum bind:input={input.data as InputEnum} />
+{/if}
+
+{#if input.data.type === 'number'}
   <InputEnum bind:input={input.data as InputEnum} />
 {/if}
 

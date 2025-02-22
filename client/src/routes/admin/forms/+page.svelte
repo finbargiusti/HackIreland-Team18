@@ -20,13 +20,17 @@ getDocs(collection(firestore, 'forms/' + auth.currentUser?.uid + '/forms')).then
 
 <AdminPageTitle>Forms</AdminPageTitle>
 
-{#if forms.length === 0}
-	<p>No forms found.</p>
-{/if}
+<div class="flex flex-col gap-4 items-start">
+	{#if forms.length === 0}
+		<p>No forms found.</p>
+	{/if}
 
-{#each forms as { id, data }}
-	<div class="flex flex-row gap-4 items-center">
-		<p>{data.title}</p>
-		<button class="btn" onclick={() => goto('/admin/forms/edit/' + id)}>Edit</button>
-	</div>
-{/each}
+	{#each forms as { id, data }}
+		<div class="flex flex-col gap-2 items-center">
+			<p>{data.title}</p>
+			<button class="btn" onclick={() => goto('/admin/forms/edit/' + id)}>Edit</button>
+		</div>
+	{/each}
+
+	<button class="btn btn-primary" onclick={() => goto('/admin/forms/create')}>Create new form</button>
+</div>
