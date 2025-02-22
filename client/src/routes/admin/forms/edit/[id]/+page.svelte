@@ -1,5 +1,4 @@
 <script lang="ts">
-	import AdminPageTitle from '$lib/AdminPageTitle.svelte';
 	import { firestore, auth } from '$lib/firebase';
 	import FormInputItem from '$lib/form/FormInputItem.svelte';
 	import { inputIssues, type InputField } from '$lib/form/inputs';
@@ -33,8 +32,6 @@
 		.catch((error) => {
 			console.error('Error getting document:', error);
 		});
-
-	// reactively save the form with setDoc when inputs change
 
 	let saved = $state(false);
 

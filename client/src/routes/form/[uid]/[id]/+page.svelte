@@ -15,6 +15,7 @@
 
 	const ref = doc(firestore, 'admin/' + uid + '/forms', id);
 
+	let userMessage = $state('');
 	let title = $state('');
 
 	getDoc(ref).then((doc) => {
@@ -28,21 +29,52 @@
 		console.error('Error getting document:', error);
 	});
 
+	let sessionId = $state('')
 
-	const getNextServerMessage = async () => {
-		const response = {
-			id: 'server',
-			system: true,
-			data: 'Hello from the server!'
-		};
-		return response;
+	const server_url = import.meta.env.VITE_SERVER_URL
+
+	const startSession = async () => {
+		const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/start_session/${uid}/${id}/${auth.currentUser!.uid}`, {
+			method: 'POST'
+		});
+
+		if (!response.ok) {
+			error(403, 'Failed to start session');
+		}
+
+		let json = await response.json();
+		sessionId = json.sessionId;
+		const question = json.question;
+		chats.push(
+			{
+				id: 'server',
+				system: true,
+				data: question
+			}
+		);
+	}
+
+	const getNextServerMessage = async (answer: string) => {
+		const response = await fetch(`${server_url}/next_message/${uid}/${id}/${sessionId}`, {
+			method: 'GET',
+			body: JSON.stringify({ answer }),
+		});
+		if (!response.ok) {
+			error(403, 'Failed to get next message');
+		}
+		let json = await response.json();
+		chats.push(
+			{
+				id: 'server',
+				system: true,
+				data: json.message
+			}
+		);
 	};
 
-	onMount(() => {
+	onMount(async () => {
 		chats = [];
-		getNextServerMessage().then((response) => {
-			chats = [...chats, response];
-		});
+		startSession();
 	});
 </script>
 
@@ -52,7 +84,23 @@
 		<AuthManager />
 	</div>
 	<ChatList bind:chats />
-	<input type="text" class="chat-input" placeholder="Type a message..." />
+	<input type="text" class="chat-input" placeholder="Type a message..." 
+	disabled={chats[chats.length - 1]?.id !== 'server'}
+	bind:value={userMessage}
+	onkeydown={(e) => {
+		if (e.key === 'Enter') {
+			chats.push(
+				{
+					id: 'user',
+					system: false,
+					data: userMessage
+				}
+			);
+			getNextServerMessage(userMessage);
+			userMessage=''
+		}
+	}}
+/>
 </div>
 
 <style lang="css">
