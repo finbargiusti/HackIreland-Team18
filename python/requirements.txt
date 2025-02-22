@@ -39,5 +39,5 @@ fastapi
 uvicorn
 openai==0.28.0
 pydantic
-langchain
+reportlab
 
