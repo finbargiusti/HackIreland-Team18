@@ -11,21 +11,23 @@
 <div>
 	<p class="block text-sm/6 font-medium text-gray-900">Enum items:</p>
 	<div class="mt-2">
-		<div class="flex flex-row gap-4">
+		<div class="flex flex-col gap-4">
+			<ul class="list-disc" >
 			{#each input.values as val}
-				<div
-					class="shrink-0 rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-600"
+				<li
+					class="shrink-0 rounded-md flex flex-row bg-white pl-3"
 				>
-					<span class="block shrink-0 text-base">
+					<span class="block grow text py-2">
 						{val}
-						<button
-							type="button"
-							class="text-red-500"
-							onclick={() => (input.values = input.values.filter((v) => v !== val))}>X</button
-						>
 					</span>
-				</div>
+					<button
+						type="button"
+						class="btn danger"
+						onclick={() => (input.values = input.values.filter((v) => v !== val))}>X</button
+					>
+				</li>
 			{/each}
+			</ul>
 			<div
 				class="shrink-0 rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-600"
 			>
@@ -34,7 +36,7 @@
 					name="next_input"
 					id="description"
 					class="block min-w-0 shrink-0 py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
-					placeholder="Description (enter to add)"
+					placeholder="Enter item... (enter to add)"
 					bind:value={current_input}
 					onkeydown={(e) => {
 						if (e.key === 'Enter') {

@@ -26,8 +26,8 @@ getDocs(collection(firestore, 'forms/' + auth.currentUser?.uid + '/forms')).then
 	{/if}
 
 	{#each forms as { id, data }}
-		<div class="flex flex-col gap-2 items-center">
-			<p>{data.title}</p>
+		<div class="flex flex-row gap-2 items-center px-2 py-3 br-3 border">
+			<h2>{data.title}</h2>
 			<button class="btn" onclick={() => goto('/admin/forms/edit/' + id)}>Edit</button>
 		</div>
 	{/each}
