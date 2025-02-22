@@ -24,7 +24,7 @@
 		currentPath = window.location.pathname;
 	});
 
-	let loggedIn = $state(auth.currentUser !== null);
+	let loggedIn: boolean | null = $state(null)
 
 	auth.onAuthStateChanged((user) => {
 		if (user) {
@@ -122,10 +122,12 @@
 	<main>
 		<div class="mx-auto max-w-7xl">
 			<div class="bg-white shadow-sm px-4 py-6 sm:px-6 lg:px-8">
-				{#if loggedIn}
-					{@render children()}
-				{:else}
-					<h1 class="text-5xl">You are not logged in.</h1>
+				{#if loggedIn !== null}
+					{#if loggedIn}
+						{@render children()}
+					{:else}
+						<h1 class="text-5xl">You are not logged in.</h1>
+					{/if}
 				{/if}
 			</div>
 		</div>

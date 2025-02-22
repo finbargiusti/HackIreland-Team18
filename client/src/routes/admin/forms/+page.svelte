@@ -7,11 +7,12 @@ import { collection, getDocs } from 'firebase/firestore';
 import type { Form } from '$lib/form/inputs.d.ts';
 import AdminPageTitle from '$lib/AdminPageTitle.svelte';
 import { goto } from '$app/navigation';
+import type { User } from 'firebase/auth';
 
 let forms: {id: string, data: Form}[] = $state([])
 
-const getForms = () =>
-	getDocs(collection(firestore, 'admin/' + auth.currentUser?.uid + '/forms')).then((querySnapshot) => {
+const getForms = (user: User|null) =>
+	getDocs(collection(firestore, 'admin/' + user!.uid + '/forms')).then((querySnapshot) => {
 		forms = querySnapshot.docs.map((doc) => ({
 			id: doc.id,
 			data: doc.data() as Form
