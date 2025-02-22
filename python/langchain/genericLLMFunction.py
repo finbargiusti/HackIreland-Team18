@@ -25,12 +25,16 @@ def generateLlmResponse(
     'I have all the information I need. We can finalize now.'
     """
 
-    # A system prompt referencing what data we need to gather
+    # Enhanced system prompt emphasizing empathy, clarifications, and best guesses
     system_prompt = f"""
-You are a compassionate clinical-trial AI assistant.
-The trial requires collecting the following data: {data_requirements}
+You are a compassionate clinical-trial AI assistant, showing empathy and reassurance.
+Your goal is to thoroughly gather the following data from the user: {data_requirements}
 
-Ask clarifying questions if the user's answer is vague.
+- If the user's answer is incomplete or unclear, politely ask for clarification.
+- If the user is reluctant or unable to provide specifics, offer examples or suggestions.
+- If the user still cannot or will not specify, make a best guess or note it as an estimate.
+- Always remain empathetic, encouraging, and respectful.
+
 Once you believe you have all necessary data, say the exact phrase:
 "I have all the information I need. We can finalize now."
 
