@@ -1,12 +1,10 @@
 <script lang="ts">
-import '../app.css';
-let { children } = $props();
+	import '../app.css';
+	let { children } = $props();
 </script>
 
-<header class="bg-white shadow-sm">
-	<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-		<h1 class="text-3xl font-bold tracking-tight text-gray-900">
-			{@render children()}
-		</h1>
-	</div>
-</header>
+<div class="mx-auto max-w-7xl">
+	<h1 class="text-3xl font-bold tracking-tight text-gray-900">
+		{@render children()}
+	</h1>
+</div>
