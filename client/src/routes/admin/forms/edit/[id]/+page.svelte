@@ -45,20 +45,25 @@
 	<input
 		type="text"
 		bind:value={title}
-		placeholder="Title (click to change)"
-		class="block min-w-0 grow py-1.5 pr-3 pl-1 text-5xl text-gray-900 placeholder:text-gray-400 focus:outline-none"
+		placeholder="Title (click to edit)"
+		class="block shrink-0 py-1.5 text-5xl text-gray-900 placeholder:text-gray-400 focus:outline-none"
 	/>
-	<div>
+	<div class="flex flex-col gap-4">
 		{#each inputs as _, index}
-			<FormInputItem bind:input={inputs[index]} />
+			<div class="flex flex-col gap-2 items-start">
+				<FormInputItem bind:input={inputs[index]} />
+				<button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick={ () => {
+					inputs = inputs.filter((_, i) => i !== index);
+				}}>Delete</button>
+			</div>
 		{/each}
 		<div class="flex flex-row justify-start">
 			<button
-				class="btn btn-primary"
+				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
 				onclick={() =>
 					(inputs = [...inputs, { description: '', data: { type: 'enum', values: [] } }])}
 			>
-				> Add Enum
+				Add Enum
 			</button>
 		</div>
 	</div>
