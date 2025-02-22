@@ -9,29 +9,28 @@ from dotenv import load_dotenv
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
 def generateLlmResponse(
     data_requirements: str,
-    conversation_history: List[Dict[str, str]],
-    next_question: str
+    conversation_history: List[Dict[str, str]]
 ) -> str:
     """
-    1) data_requirements: a JSON or string describing what data we want to collect 
-       (e.g., enumerations, fields like mood, wake_time, activity, etc.).
+    1) data_requirements: a string or JSON describing what data we want to collect 
+       (e.g. enumerations, fields like mood, wake_time, activity, etc.).
 
     2) conversation_history: the messages so far, each item is {'role': 'user'|'assistant', 'content': ...}.
 
-    3) next_question: the new text from user (like "I feel fine" or "I woke up at 9 am").
+    Returns a string: the AI's next response.
 
-    Returns a string: the AI's response.
+    The AI is instructed to keep asking for missing data until it says:
+    'I have all the information I need. We can finalize now.'
     """
 
-    # Example system prompt referencing the data requirements
+    # A system prompt referencing what data we need to gather
     system_prompt = f"""
-You are a compassionate clinical-trial AI assistant. 
+You are a compassionate clinical-trial AI assistant.
 The trial requires collecting the following data: {data_requirements}
 
-Ask clarifying questions if the user's answer is vague. 
+Ask clarifying questions if the user's answer is vague.
 Once you believe you have all necessary data, say the exact phrase:
 "I have all the information I need. We can finalize now."
 
@@ -39,10 +38,9 @@ After that, do not ask further questions—just wait for finalization.
 Be empathetic, but thorough.
 """
 
-    # Combine system prompt + conversation + new user message
+    # Build the entire prompt: system + conversation so far
     messages = [{"role": "system", "content": system_prompt}]
     messages.extend(conversation_history)
-    messages.append({"role": "user", "content": next_question})
 
     try:
         completion = openai.ChatCompletion.create(
@@ -53,6 +51,7 @@ Be empathetic, but thorough.
         )
         ai_reply = completion.choices[0].message.content
         return ai_reply
+
     except Exception as e:
         return f"Error calling OpenAI: {str(e)}"
 
@@ -93,7 +92,7 @@ def parse_final_conversation_to_csv(
         print("Error calling OpenAI for parsing:", str(e))
         return
 
-    print("DEBUG: GPT parse result:", json_reply)
+    print("\nDEBUG: GPT parse result:", json_reply)
 
     # Attempt to load JSON
     try:
@@ -122,7 +121,7 @@ def parse_final_conversation_to_csv(
             # fill with empty if not present
             row[fn] = parsed_data.get(fn, "")
 
-        # if there's a 'date' field missing, fill with today:
+        # if there's a 'date' field missing, fill with today's date:
         if not row.get("date"):
             row["date"] = str(datetime.date.today())
 
@@ -130,14 +129,15 @@ def parse_final_conversation_to_csv(
 
     print(f"Parsed data appended to {output_csv_path}")
 
+
 if __name__ == "__main__":
-    # Suppose 'data_requirements' describes enumerations, e.g.:
-    data_reqs = """
-    The user must provide: 
-    - mood (choice: 'Terrible','Fine','Great'), 
-    - wake_time, 
-    - sleep_time, 
-    - hours_slept, 
+    # Example 'data_requirements' describing enumerations / fields:
+    data_requirements = """
+    We want to collect:
+    - mood (choices: 'Terrible','Fine','Great'),
+    - wake_time,
+    - sleep_time,
+    - hours_slept,
     - notes
     ...
     """
@@ -145,18 +145,21 @@ if __name__ == "__main__":
     conversation = []
     while True:
         user_input = input("User: ")
-        # call generateLlmResponse
-        ai_response = generateLlmResponse(data_reqs, conversation, user_input)
+        # Add the user's message to conversation
+        conversation.append({"role": "user", "content": user_input})
+
+        # Call generateLlmResponse with the updated conversation
+        ai_response = generateLlmResponse(data_requirements, conversation)
         print("AI:", ai_response)
 
-        # add to conversation
-        conversation.append({"role": "user", "content": user_input})
+        # Add AI's reply to conversation
         conversation.append({"role": "assistant", "content": ai_response})
 
-        # check if AI says "we can finalize now"
+        # Check if AI says "I have all the information I need. We can finalize now."
         if "I have all the information I need. We can finalize now." in ai_response:
             print("\nAI indicated it's satisfied. Let's parse final conversation.")
-            # we load 'schema_instructions' from a file or define inline
+
+            # You can define or load parse instructions:
             parse_instructions = """
             You are now a data parser. Please output JSON with:
             {
@@ -171,6 +174,7 @@ if __name__ == "__main__":
             Fill blanks if user didn't provide them. 
             Return valid JSON only, no extra text.
             """
+
             parse_final_conversation_to_csv(
                 conversation, 
                 parse_instructions,
