@@ -63,9 +63,8 @@ Be empathetic, but thorough.
 def parse_final_conversation_to_csv(
     conversation_history: List[Dict[str, str]],
     schema_instructions: str,
-    output_csv_path: str = "diary_data.csv",
-    schema_fields_json: str = "daily_schema_fields.json"
-) -> None:
+    fieldnames: Dict
+) -> str:
     """
     1) Takes the entire conversation (where the AI presumably said "we can finalize now").
     2) 'schema_instructions': Additional instructions telling GPT how to parse the conversation 
@@ -94,44 +93,23 @@ def parse_final_conversation_to_csv(
         json_reply = parse_completion.choices[0].message.content.strip()
     except Exception as e:
         print("Error calling OpenAI for parsing:", str(e))
-        return
+        raise e
 
     print("\nDEBUG: GPT parse result:", json_reply)
 
     # Attempt to load JSON
     try:
         parsed_data = json.loads(json_reply)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
         print("Could not parse JSON. GPT reply:", json_reply)
-        return
+        raise e
 
-    # Load the field definitions from your schema_fields JSON
-    try:
-        with open(schema_fields_json, "r", encoding="utf-8") as ff:
-            fieldnames = json.load(ff)  # e.g. ["date","mood","wake_time",...]
-    except Exception as e:
-        print("Error reading schema fields JSON:", str(e))
-        return
+    out = {}
+    for fn in fieldnames:
+        # fill with empty if not present
+        out[fn] = parsed_data.get(fn, "")
 
-    # Write to CSV
-    file_exists = os.path.isfile(output_csv_path)
-    with open(output_csv_path, "a", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        if not file_exists:
-            writer.writeheader()
-
-        row = {}
-        for fn in fieldnames:
-            # fill with empty if not present
-            row[fn] = parsed_data.get(fn, "")
-
-        # if there's a 'date' field missing, fill with today's date:
-        if not row.get("date"):
-            row["date"] = str(datetime.date.today())
-
-        writer.writerow(row)
-
-    print(f"Parsed data appended to {output_csv_path}")
+    return json.dumps(out)
 
 
 if __name__ == "__main__":
@@ -179,11 +157,13 @@ if __name__ == "__main__":
             Return valid JSON only, no extra text.
             """
 
+            with open('daily_schema_fields.json', 'r') as f:
+                schema_fields = json.load(f)
+
             parse_final_conversation_to_csv(
                 conversation, 
                 parse_instructions,
-                output_csv_path="diary_data.csv",
-                schema_fields_json="daily_schema_fields.json"
+                schema_fields
             )
             print("Diary data saved to CSV. Exiting.")
             break
