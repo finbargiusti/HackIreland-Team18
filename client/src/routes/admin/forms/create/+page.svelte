@@ -1,14 +1,14 @@
 <script lang="ts">
 	import AdminPageTitle from '$lib/AdminPageTitle.svelte';
   import {goto} from '$app/navigation';
-	import { firestore } from '$lib/firebase';
+	import { firestore, auth } from '$lib/firebase';
 
-  import {doc, setDoc} from 'firebase/firestore';
+  import {doc, setDoc, getDoc} from 'firebase/firestore';
 
   let name = $state('');
 
   const create = () => {
-    const ref = doc(firestore, 'forms', name);
+    const ref = doc(firestore, 'forms/'+ auth.currentUser!.uid + '/forms', name)
     setDoc(ref, { title: "", inputs: [] });
     goto('/admin/forms/edit/' + name);
   }
