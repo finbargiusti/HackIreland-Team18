@@ -17,7 +17,8 @@
     if (doc.exists()) {
       const data = doc.data();
       conversation = data.conversation;
-      date = data.date.toString();
+      const date_obj = new Date(data.date);
+      date = date_obj.toLocaleDateString();
       email = data.email;
     } else {
       console.log("No such document!");
@@ -30,8 +31,8 @@
 
 <h1>Session for {email} at {date}:</h1>
 
-<table>
-  <thead>
+<table class="mt-6">
+  <thead class="bg-teal-600 text-white">
     <tr>
       <td>From</td>
       <td>Message</td>
@@ -39,8 +40,8 @@
   </thead>
   <tbody>
     {#each conversation as {role, content}}
-      <tr>
-        <td>{role}</td>
+      <tr class={['', 'chat', role=='user' ? 'user' : 'system']}>
+        <td class="px-4">{role}</td>
         <td>{content}</td>
       </tr>
     {/each}

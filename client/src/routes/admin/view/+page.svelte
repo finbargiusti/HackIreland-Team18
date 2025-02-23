@@ -21,9 +21,11 @@
 <AdminPageTitle>View Form Results</AdminPageTitle>
 
 {#each forms as f}
-	<div class="flex flex-col gap-3 px-4 py-2 items-start">
+	<div class="box">
 		<h2>{f.data.title}</h2>
-		<a class="btn" href={`/admin/view/${f.id}`} >View Results</a>
+		<div class="buttons">
+			<a class="btn" href={`/admin/view/${f.id}`} >View Results</a>
+		</div>
 	</div>
 {/each}
 

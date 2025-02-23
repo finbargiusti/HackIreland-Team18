@@ -28,6 +28,7 @@
 		"vite": "^6.0.0"
 	},
 	"dependencies": {
+		"debounce": "^2.2.0",
 		"firebase": "^11.3.1",
 		"svelte-click-outside": "^1.0.0"
 	}

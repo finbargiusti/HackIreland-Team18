@@ -18,21 +18,3 @@
     </div>
   {/each}
 </div>
-
-<style lang="css">
-@import "tailwindcss";  
-
-.chat-contain {
-  @apply grow flex flex-col items-stretch w-full;
-}
-
-.chat {
-  @apply py-2 px-4 bg-gray-200 text-lg;
-}
-.chat.system {
-  @apply bg-gray-300;
-}
-.chat>span.id {
-  @apply font-bold inline-block;
-}
-</style>

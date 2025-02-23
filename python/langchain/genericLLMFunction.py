@@ -11,6 +11,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def generateLlmResponse(
     data_requirements: str,
+    userName: str,
     conversation_history: List[Dict[str, str]]
 ) -> tuple[str, bool]:
     """
@@ -32,7 +33,6 @@ Below is the form structure we want to collect data for (in JSON):
 - If the user still won't specify, make a best guess or leave it blank.
 - Remain empathetic, encouraging, and respectful.
 - Ensure you are adding a fare share of emojis for better context
-- For type number absolutely ensure it is a numerical value 
 - For type choice one of the values must be picked if after some prompts you get no answer you should infer what you think is most applicable
 
 Once you believe you have all necessary data, say the exact phrase:
@@ -40,6 +40,14 @@ Once you believe you have all necessary data, say the exact phrase:
 
 After that, do not ask further questions—just wait for finalization.
 Be empathetic, but thorough.
+
+Make sure to refer to the user personally, (preferably by their first name) instead of referring to them as a "patient" or "user".
+
+User's name: {userName}
+
+#IMPORTANT: DONT IGNORE THIS
+NEVER EVER EVER EVER reference the user as "the patient" or "the user". Always use their name.
+NUMBER FIELDS MUST CONTAIN A NUMERICAL VALUE, NOT A STRING.
 
 Also: Make sure to only ask one question at a time, as to not overwhelm the user! :)
 """
@@ -51,7 +59,7 @@ Also: Make sure to only ask one question at a time, as to not overwhelm the user
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=messages,
-            temperature=0,
+            temperature=0.2,
             max_tokens=70
         )
         done = False

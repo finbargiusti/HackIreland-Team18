@@ -47,7 +47,7 @@ const inputIssues = (input: InputField, id: string): string[] => {
 	switch (input.data.type) {
 		case 'choice':
 			if (input.data.values.length === 0) {
-				issues.push(id + ': Enum values are required');
+				issues.push(id + ': Choices are required');
 			}
 			break;
 	}

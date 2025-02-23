@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { auth, firestore } from '$lib/firebase';
-	import type { Form, Result} from '$lib/form/inputs';
+	import type { Form, Result } from '$lib/form/inputs';
 	import type { User } from 'firebase/auth';
 
 	import { getDoc, doc } from 'firebase/firestore';
@@ -38,9 +38,17 @@
 		);
 	});
 
+	const col_types = $derived.by(() => {
+		if (data == null) return [];
+		return columns.map((col) => {
+			const input = data!.inputs.find((input) => input.label === col);
+			if (input == null) return 'text';
+			return input.data.type;
+	})});
+
 	const rows = $derived.by(() => {
 		if (data == null) return [];
-		return data.results
+		return data.results;
 	});
 
 	const toCsv = (data: Form) => {
@@ -66,8 +74,8 @@
 	auth.onAuthStateChanged(getForm);
 </script>
 
-<div class="flex items-center justify-start gap-4">
-	<button class="btn" onclick={downloadCsv}>Download CSV</button>
+<div class="buttons w-full mb-8">
+	<a class="btn" onclick={downloadCsv}>Download CSV</a>
 </div>
 
 <div class="overflow-x-auto font-[sans-serif]">
@@ -82,18 +90,23 @@
 		</thead>
 
 		<tbody class="whitespace-nowrap">
-			<tr class="even:bg-blue-50">
-				{#each rows as row}
+			{#each rows as row}
+				<tr class="even:bg-blue-50">
 					{#each columns as column}
-						<td class="p-4 text-sm text-black"> {row[column]} </td>
+						<td class="p-4 text-sm text-black"> {
+							(col_types[columns.indexOf(column)] === 'number') ?
+								parseFloat(row[column])
+							:
+								row[column]
+						} </td>
 					{/each}
-					<td class="p-4 text-sm text-darkblue-800">
+					<td class="text-darkblue-800 p-4 text-sm">
 						<a href={`/admin/conversation/${row.admin_id}/${row.form_id}/${row.session_id}/`}>
 							link
 						</a>
 					</td>
-				{/each}
-			</tr>
+				</tr>
+			{/each}
 		</tbody>
 	</table>
 </div>
