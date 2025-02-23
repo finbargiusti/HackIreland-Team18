@@ -29,6 +29,10 @@
 	});
 </script>
 
+<meta:head>
+	<title>ClinaTrack Admin Panel</title>
+</meta:head>
+
 <div class="align-stretch flex min-h-100  flex-row">
 	<nav>
 		<h3 class="">ClinaTrack</h3>

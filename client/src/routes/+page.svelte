@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
   import ChatList from '$lib/ChatList.svelte';
 
   // Slide 3/4: Chat demo data and a simple send handler.
@@ -11,10 +12,7 @@
   ];
 
   function sendTest() {
-    if (message.trim()) {
-      messages = [...messages, { id: messages.length + 1, role: "patient", content: message }];
-      message = "";
-    }
+    goto('/s/vx2xrf')
   }
 
   // Reactive derived data for ChatList: transform messages into expected shape.
@@ -228,7 +226,7 @@
           type="text"
           bind:value={message}
           placeholder="Try it now"
-          class="flex-grow p-3 rounded-l text-xl bg-gray-700 text-white border-none focus:outline-none"
+          class="flex-grow p-3 rounded-l text-xl text-gray-700 bg-white border-none focus:outline-none"
         />
         <button on:click={sendTest} class="btn rounded-r text-xl bg-green-600 hover:bg-green-700 text-white px-6 py-3">
           Send

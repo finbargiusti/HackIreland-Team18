@@ -76,7 +76,11 @@
 			})
 		});
 		if (!response.ok) {
-			goto('/admin/404');
+			chats.push({
+				user: false,
+				data: 'An error occurred. Please try again later'
+			});
+			canChat = false;
 		}
 		let json = await response.json();
 		const question = json.bot_question;
@@ -108,6 +112,10 @@
 	});
 
 	function submitMessage() {
+		if (userMessage === '') {
+			return;
+		}
+		canChat=false;
 		chats.push({
 			user: true,
 			data: userMessage
@@ -127,6 +135,11 @@
 		server_url = location.protocol + '//'+ location.host.split(':')[0] + ':8000';
 	});
 </script>
+
+<meta:head>
+	<title>{title}</title>
+</meta:head>
+
 
 <div class="flex h-[calc(100vh-20px)] flex-col items-stretch">
 	<div class="flex w-full flex-row items-center px-4">

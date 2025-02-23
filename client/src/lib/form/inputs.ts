@@ -26,6 +26,7 @@ type Result = {
 	email: string,
 	form_id: string,
 	admin_id: string,
+	session_id: string,
 	[key: string]: string
 }
 

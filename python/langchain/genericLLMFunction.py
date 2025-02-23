@@ -57,6 +57,9 @@ Also: Make sure to only ask one question at a time, as to not overwhelm the user
     messages = [{"role": "system", "content": system_prompt}]
     messages.extend(conversation_history)
 
+    if len(conversation_history) > 0 and "goodbye" in conversation_history[-1]["content"].lower():
+        return "Goodbye! Have a great day!", True
+
     try:
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -92,10 +95,24 @@ def parse_final_conversation_to_json(
     {
         ''',
         '''.join([
-            f'"{field["label"]}": ""' for field in fields
+            f'''"{field["label"]}": [value]
+            ''' for field in fields
         ])
     }
     {'}'}
+
+    Where [value] is has the following types:
+
+    {'{'}
+    {
+        ''',
+        '''.join([
+            f'''"{field["label"]}": {f'[{",".join(field["data"]["values"])}]' if field["data"]["type"] == 'choice' else field["data"]["type"]}
+            ''' for field in fields
+        ])
+    }
+    {'}'}
+
     If the user did not provide them, fill them with blank or 0.
     "number" type fields must contain a numerical value, not a string.
     "choice" type fields must contain one of the provided values in the origin request.
@@ -108,6 +125,8 @@ def parse_final_conversation_to_json(
     Return only valid JSON, no extra commentary.
     """
 
+    print(parse_instructions)
+
     # Combine conversation + system instructions
     parse_messages = conversation_history + [
         {"role": "system", "content": parse_instructions}
@@ -117,7 +136,7 @@ def parse_final_conversation_to_json(
         parse_completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=parse_messages,
-            temperature=0,
+            temperature=0.4,
             max_tokens=300
         )
         json_reply = parse_completion.choices[0].message.content.strip()
