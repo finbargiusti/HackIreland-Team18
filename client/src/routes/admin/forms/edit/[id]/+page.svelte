@@ -1,5 +1,4 @@
 <script lang="ts">
-	import AdminPageTitle from '$lib/AdminPageTitle.svelte';
 	import { firestore, auth } from '$lib/firebase';
 	import FormInputItem from '$lib/form/FormInputItem.svelte';
 	import { inputIssues, type InputField } from '$lib/form/inputs';
@@ -33,8 +32,6 @@
 		.catch((error) => {
 			console.error('Error getting document:', error);
 		});
-
-	// reactively save the form with setDoc when inputs change
 
 	let saved = $state(false);
 
@@ -143,6 +140,12 @@
 			>
 				Add Numerical input
 			</button>
+			<button
+				class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+				onclick={() => (inputs = [...inputs, { description: '', data: { type: 'string' } }])}
+			>
+				Add String input
+			</button>
 		</div>
 		<div class="flex flex-row justify-start gap-4">
 			<button class="btn danger" onclick={deleteSelf}> Delete Form </button>
@@ -190,7 +193,7 @@
 }
 
 h1.happy {
-  @apply text-green-500 bg-gray-100;
+  @apply text-green-500 absolute left-0;
 	animation: happy 2s forwards;
 	position: absolute;
 }

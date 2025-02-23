@@ -7,15 +7,21 @@ import { collection, getDocs } from 'firebase/firestore';
 import type { Form } from '$lib/form/inputs.d.ts';
 import AdminPageTitle from '$lib/AdminPageTitle.svelte';
 import { goto } from '$app/navigation';
+import type { User } from 'firebase/auth';
 
-let forms: {id: string, data: Form}[] = $state([]);
+let forms: {id: string, data: Form}[] = $state([])
 
-getDocs(collection(firestore, 'admin/' + auth.currentUser?.uid + '/forms')).then((querySnapshot) => {
-	forms = querySnapshot.docs.map((doc) => ({
-		id: doc.id,
-		data: doc.data() as Form
-	}));
-});
+const getForms = (user: User|null) => {
+	if (user === null) return;
+	getDocs(collection(firestore, 'admin/' + user.uid + '/forms')).then((querySnapshot) => {
+		forms = querySnapshot.docs.map((doc) => ({
+			id: doc.id,
+			data: doc.data() as Form
+		}));
+	});
+}
+
+auth.onAuthStateChanged(getForms)
 
 </script>
 
@@ -27,7 +33,7 @@ getDocs(collection(firestore, 'admin/' + auth.currentUser?.uid + '/forms')).then
 	{/if}
 
 	{#each forms as { id, data }}
-		<div class="flex flex-row gap-2 items-center px-2 py-3 br-3 border">
+		<div class="flex flex-row gap-4 items-center px-2 py-3 br-3">
 			<h2>{data.title}</h2>
 			<button class="btn" onclick={() => goto('/admin/forms/edit/' + id)}>Edit</button>
 			<a href={`/form/${auth.currentUser!.uid}/${id}`} class="btn">Form link</a>
