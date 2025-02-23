@@ -19,10 +19,17 @@ type InputField = {
 	label: string;
 }
 
+type Result = {
+	date: string,
+	email: string,
+	[key: string]: string
+}
+
 type Form = {
 	title: string,
 	inputs: InputField[]
 	users: string[]
+	results: Result[]
 }
 
 export type { InputField, InputData, InputChoice, Form }
