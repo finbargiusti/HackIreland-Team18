@@ -130,19 +130,19 @@
 			<button
 				class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
 				onclick={() =>
-					(inputs = [...inputs, { description: '', data: { type: 'choice', values: [] } }])}
+					(inputs = [...inputs, { description: '', label: '', data: { type: 'choice', values: [] } }])}
 			>
 				Add Choice Input
 			</button>
 			<button
 				class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-				onclick={() => (inputs = [...inputs, { description: '', data: { type: 'number' } }])}
+				onclick={() => (inputs = [...inputs, { description: '', label: '', data: { type: 'number' } }])}
 			>
 				Add Numerical input
 			</button>
 			<button
 				class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-				onclick={() => (inputs = [...inputs, { description: '', data: { type: 'string' } }])}
+				onclick={() => (inputs = [...inputs, { description: '', label: '', data: { type: 'string' } }])}
 			>
 				Add String input
 			</button>
