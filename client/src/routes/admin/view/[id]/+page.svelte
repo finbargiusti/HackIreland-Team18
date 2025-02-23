@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import AdminPageTitle from '$lib/AdminPageTitle.svelte';
 	import { auth, firestore } from '$lib/firebase';
-	import type { Form, Result} from '$lib/form/inputs';
+	import type { Form, Result } from '$lib/form/inputs';
 	import type { User } from 'firebase/auth';
 
 	import { getDoc, doc } from 'firebase/firestore';
@@ -38,9 +39,23 @@
 		);
 	});
 
+  const col_types = $derived.by(() => {
+		if (data == null) return {};
+		let kv: {[key: string]: string} = {};
+		columns.forEach((col) => {
+			const input = data!.inputs.find((input) => input.label === col);
+			if (input == null) {
+				kv[col] = 'string';
+			} else {
+				kv[col] = input.data.type;
+			}
+		});
+		return kv;
+	});
+
 	const rows = $derived.by(() => {
 		if (data == null) return [];
-		return data.results
+		return data.results;
 	});
 
 	const toCsv = (data: Form) => {
@@ -66,8 +81,10 @@
 	auth.onAuthStateChanged(getForm);
 </script>
 
-<div class="flex items-center justify-start gap-4">
-	<button class="btn" onclick={downloadCsv}>Download CSV</button>
+<AdminPageTitle>{data?.title}</AdminPageTitle>
+
+<div class="buttons w-full mb-8">
+	<a class="btn" onclick={downloadCsv}>Download CSV</a>
 </div>
 
 <div class="overflow-x-auto font-[sans-serif]">
@@ -77,23 +94,30 @@
 				{#each columns as column}
 					<th class="p-4 text-left text-sm font-medium text-white"> {column} </th>
 				{/each}
-				<th class="p-4 text-left text-sm font-medium text-white"> {chat log} </th>
+				<th class="p-4 text-left text-sm font-medium text-white"> chat log </th>
 			</tr>
 		</thead>
 
 		<tbody class="whitespace-nowrap">
-			<tr class="even:bg-blue-50">
-				{#each rows as row}
-					{#each columns as column}
-						<td class="p-4 text-sm text-black"> {row[column]} </td>
+			{#each rows as row}
+				<tr class="even:bg-blue-50">
+					{#each Object.keys(col_types) as column}
+						<td class="p-4 text-sm text-black"> {
+							(col_types[column] === 'number') ?
+								parseFloat(row[column])
+							:
+								row[column]
+						} </td>
 					{/each}
-					<td class="p-4 text-sm text-darkblue-800">
-						<a href={f`/admin/conversation/${row.admin_id}/${row.form_id}/${row.session_id}/`}>
+					<td class="text-darkblue-800 p-4 text-sm">
+						<a href={`/admin/conversation/${row.admin_id}/${row.form_id}/${row.session_id}/`}>
 							link
 						</a>
 					</td>
-				{/each}
-			</tr>
+				</tr>
+			{/each}
 		</tbody>
 	</table>
 </div>
+
+

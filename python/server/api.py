@@ -114,8 +114,10 @@ def start_session(admin_id: str, form_id: str, start_req: StartSessionRequest):
     # Check patient approval via Firebase Auth.
     try:
         user_record = auth.get_user(patient_id)
+        patient_name = user_record.display_name
         patient_email = user_record.email
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail="Invalid patient uid provided")
     
     approved_users = form_data.get("users", [])
@@ -130,7 +132,7 @@ def start_session(admin_id: str, form_id: str, start_req: StartSessionRequest):
     # Initialize conversation history as an empty list.
     conversation: List[Dict[str, str]] = []
     # Generate the initial question using the first input's description.
-    initial_question, _ = generateLlmResponse(json.dumps(inputs), conversation)
+    initial_question, _ = generateLlmResponse(json.dumps(inputs), patient_name, conversation)
     conversation.append({"role": "assistant", "content": initial_question})
 
     # Prepare the session document data.
@@ -197,7 +199,8 @@ def send_message(admin_id: str, form_id: str, send_req: SendMessageRequest):
 
     # If there is another input field pending, generate the next question.
     new_index = current_index + 1
-    next_question, done = generateLlmResponse(json.dumps(inputs), conversation)
+    patient_name = auth.get_user(patient_id).display_name
+    next_question, done = generateLlmResponse(json.dumps(inputs), patient_name, conversation)
     if not done:
         conversation.append({"role": "assistant", "content": next_question})
         # Update the session: advance the current field index and save the updated conversation.
@@ -227,6 +230,11 @@ def send_message(admin_id: str, form_id: str, send_req: SendMessageRequest):
         result["date"] = datetime.datetime.utcnow().isoformat()
         results = form_data.get("results", [])
         results.append(result)
+
+        session_ref.update({
+            "email": result["email"],
+            "date": result["date"],
+        })
         form_ref.update({"results": results})
 
         return {"message": "Session complete"}

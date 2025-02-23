@@ -3,6 +3,8 @@
 	import FormInputItem from '$lib/form/FormInputItem.svelte';
 	import { inputIssues, type InputField } from '$lib/form/inputs';
 	import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+	import debounce from 'debounce';
+
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
@@ -13,8 +15,8 @@
 	let title = $state('');
 	let inputs: InputField[] = $state([]);
 
-	let newUser = $state('')
-	let users: string[] = $state([])
+	let newUser = $state('');
+	let users: string[] = $state([]);
 
 	getDoc(ref)
 		.then((doc) => {
@@ -34,13 +36,13 @@
 
 	let saved = $state(false);
 
-	const addPatient = (email: string) => {
-		getDoc(ref).then((doc) => {
-			console.assert(doc.exists())
-			users.push(email);
-			updateDoc(ref, {users});
-		})
-	}
+	const setSaved = debounce(
+		() => {
+			saved = true;
+		},
+		200,
+		{ immediate: true }
+	);
 
 	$effect(() => {
 		// validate inputs
@@ -61,10 +63,12 @@
 		}
 
 		if (!loading && e.length === 0) {
-			updateDoc(ref, { title, inputs }).then(() => saved=true).catch((error) => {
-				console.error('Error updating document:', error);
-				e.push('Error updating document');
-			});
+			updateDoc(ref, { title, inputs })
+				.then(setSaved)
+				.catch((error) => {
+					console.error('Error updating document:', error);
+					e.push('Error updating document');
+				});
 		}
 
 		errors = e;
@@ -82,114 +86,93 @@
 		e.returnValue = msg;
 		return msg;
 	}
+
+	let windowDiv: HTMLDivElement | null = $state(null);
+
+	const scrollToBottom = () => {
+		const parent = windowDiv?.parentElement;
+		setTimeout(
+			() =>
+				parent?.scrollTo({
+					top: parent?.scrollHeight,
+					behavior: 'smooth'
+				}),
+			0
+		);
+	};
 </script>
 
-<window:beforeunload onbeforeunload={saved ? null : unload_watch} ></window:beforeunload>
+<window:beforeunload onbeforeunload={saved ? null : unload_watch}></window:beforeunload>
 
 {#if errors.length > 0}
-	<h1 class="bold mb-2 ml-0 text-3xl text-yellow-500">Cannot save document:</h1>
-	<ul class="list-disc">
-		{#each errors as e}
-			<li>{e}</li>
-		{/each}
-	</ul>
-{/if}
-{#if saved}
-	<h1 class="happy">Synced!</h1>
+	<div class="box warn">
+		<h1 class="warn">Incomplete items:</h1>
+		<ol class="list-inside list-decimal">
+			{#each errors as e}
+				<li>{e}</li>
+			{/each}
+		</ol>
+	</div>
+{:else}
+	<div class={['box', saved ? 'happy' : 'invisible', 'absolute', 'w-100']}>
+		<h1 class="happy">Synced!</h1>
+	</div>
 {/if}
 {#if !loading}
 	<input
 		type="text"
 		bind:value={title}
 		placeholder="Title (click to edit)"
-		class="block inline w-full py-1.5 text-5xl text-gray-900 placeholder:text-gray-400 focus:outline-none"
+		class="mb-8 block inline w-full py-1.5 text-center text-5xl text-gray-900 placeholder:text-gray-400 focus:outline-none"
 	/>
-	<div class="flex flex-col gap-4">
+	<div class="mt-4 mb-4 flex flex-row justify-stretch gap-4" bind:this={windowDiv}>
+		<a
+			class="btn grow"
+			onclick={() => {
+				inputs = [...inputs, { description: '', label: '', data: { type: 'choice', values: [] } }];
+				scrollToBottom();
+			}}
+		>
+			Add Choice Input
+		</a>
+		<a
+			class="btn grow"
+			onclick={() =>
+				(inputs = [...inputs, { description: '', label: '', data: { type: 'number' } }])}
+		>
+			Add Numerical input
+		</a>
+		<a
+			class="btn grow"
+			onclick={() =>
+				(inputs = [...inputs, { description: '', label: '', data: { type: 'string' } }])}
+		>
+			Add String input
+		</a>
+	</div>
+	<div class="mb-4 flex w-full flex-row justify-stretch gap-4">
+		<a class="btn danger w-full text-center" onclick={deleteSelf}> Delete Form </a>
+	</div>
+	<div class="flex flex-col items-stretch gap-4">
 		{#each inputs as _, index}
-			<div class="input-item-wrap">
+			<div class="box">
 				<h2 class="text-2xl">Input {index + 1}: {inputs[index].data.type}</h2>
 				<FormInputItem bind:input={inputs[index]} />
 				<button
-					class="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
+					class="mt-6 w-full rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
 					onclick={() => {
 						inputs = inputs.filter((_, i) => i !== index);
 					}}>Delete</button
 				>
 			</div>
 		{/each}
-		<div class="flex flex-row justify-start gap-4">
-			<button
-				class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-				onclick={() =>
-					(inputs = [...inputs, { description: '', label: '', data: { type: 'choice', values: [] } }])}
-			>
-				Add Choice Input
-			</button>
-			<button
-				class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-				onclick={() => (inputs = [...inputs, { description: '', label: '', data: { type: 'number' } }])}
-			>
-				Add Numerical input
-			</button>
-			<button
-				class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-				onclick={() => (inputs = [...inputs, { description: '', label: '', data: { type: 'string' } }])}
-			>
-				Add String input
-			</button>
-		</div>
-		<div class="flex flex-row justify-start gap-4">
-			<button class="btn danger" onclick={deleteSelf}> Delete Form </button>
-		</div>
-		<h2>Users:</h2>
-		<ul>
-			{#each users as u}
-			<li class="text-lg">
-					{u}
-			</li>
-			{/each}
-		</ul>
-		<div class="flex flex-row justify-start gap-4">
-			<input type="text" bind:value={newUser} placeholder="Add user (enter)"
-				onkeydown={
-				(e) => {
-					if (e.key === 'Enter') {
-						addPatient(newUser);
-						newUser = ''
-					}
-				}
-			}
-			/>
-		</div>
 	</div>
 {/if}
 
 <style lang="css">
-@import "tailwindcss";
+	@import 'tailwindcss';
 
-.input-item-wrap {
-	@apply flex flex-col items-stretch gap-2 px-2 border border-gray-400 rounded-md py-2 justify-stretch;
-}
-
-@keyframes happy {
-	0% {
-		opacity: 1;
+	.input-item-wrap {
+		@apply flex flex-col items-stretch justify-stretch gap-2 rounded-md border border-gray-400 px-2 py-2;
 	}
-	80% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-	}
-}
-
-h1.happy {
-  @apply text-green-500 absolute left-0;
-	animation: happy 2s forwards;
-	position: absolute;
-}
-
-.title::after {
-	content: '📝';
-}
 </style>

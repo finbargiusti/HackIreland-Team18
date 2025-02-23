@@ -13,6 +13,8 @@ type InputString = {
 
 type InputData = InputChoice | InputNumber | InputString;
 
+type InputType = InputData['type'];
+
 type InputField = {
 	description: string;
 	data: InputData;
@@ -34,7 +36,7 @@ type Form = {
 	results: Result[]
 }
 
-export type { InputField, InputData, InputChoice, Form, Result }
+export type { InputField, InputData, InputChoice, Form, Result, InputType }
 
 const inputIssues = (input: InputField, id: string): string[] => {
 	let issues = [];
@@ -47,7 +49,7 @@ const inputIssues = (input: InputField, id: string): string[] => {
 	switch (input.data.type) {
 		case 'choice':
 			if (input.data.values.length === 0) {
-				issues.push(id + ': Enum values are required');
+				issues.push(id + ': Choices are required');
 			}
 			break;
 	}

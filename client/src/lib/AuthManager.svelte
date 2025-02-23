@@ -38,20 +38,15 @@
 </script>
 
 <ul class="mt-2">
-	{#if user}
-	<li>
-		<h4 class="px-4 pb-2 text-sm font-bold text-red-300">
-			{user.email}
-		</h4>
-	</li>
-	{/if}
-
 	<li>
 		{#if user}
+			<span class="email">
+				{user.email}
+			</span>
 			<a
 				href="#"
 				on:click={handleLogout}
-				class="block rounded px-4 py-2.5 text-[15px] text-black transition-all hover:bg-red-50 hover:text-red-600"
+				class="nav-link"
 			>
 				Log out
 			</a>
@@ -59,7 +54,7 @@
 			<a
 				href="#"
 				on:click={handleGoogleLogin}
-				class="block rounded px-4 py-2.5 text-[15px] text-black transition-all hover:bg-red-50 hover:text-red-600"
+				class="nav-link"
 			>
 				Log in with google
 			</a>

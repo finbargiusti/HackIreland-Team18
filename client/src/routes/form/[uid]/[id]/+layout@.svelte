@@ -8,21 +8,21 @@
 
 	let loggedIn: boolean | null = $state(null);
 
-  onMount(() => {
-    auth.onAuthStateChanged((user) => {
-      console.log(user)
-      loggedIn = user !== null;
-    });
-  });
+	onMount(() => {
+		auth.onAuthStateChanged((user) => {
+			console.log(user);
+			loggedIn = user !== null;
+		});
+	});
 </script>
 
 {#if loggedIn !== null}
 	{#if loggedIn}
 		{@render children()}
 	{:else}
-    <div class="flex min-h-full w-full flex-row items-center justify-between">
-      <p>Please log in:</p>
-      <AuthManager />
-    </div>
+		<div class="flex h-screen w-screen flex-row items-center justify-center gap-4">
+			<p>Please log in:</p>
+			<AuthManager />
+		</div>
 	{/if}
 {/if}
