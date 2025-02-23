@@ -78,22 +78,14 @@
 	};
 
 	function unload_watch(e: BeforeUnloadEvent) {
-		if (!saved) {
-			e.preventDefault();
-			const msg = 'You have unsaved changes. Are you sure you want to leave?';
-			e.returnValue = msg;
-			return msg;
-		}
+		e.preventDefault();
+		const msg = 'You have unsaved changes. Are you sure you want to leave?';
+		e.returnValue = msg;
+		return msg;
 	}
-
-	onMount(() => {
-		window.addEventListener('beforeunload', unload_watch);
-	});
-
-	onDestroy(() => {
-		window.removeEventListener('beforeunload', unload_watch);
-	});
 </script>
+
+<window:beforeunload onbeforeunload={saved ? null : unload_watch} ></window:beforeunload>
 
 {#if errors.length > 0}
 	<h1 class="bold mb-2 ml-0 text-3xl text-yellow-500">Cannot save document:</h1>
@@ -111,7 +103,7 @@
 		type="text"
 		bind:value={title}
 		placeholder="Title (click to edit)"
-		class="block w-full py-1.5 text-5xl text-gray-900 placeholder:text-gray-400 focus:outline-none"
+		class="block inline w-full py-1.5 text-5xl text-gray-900 placeholder:text-gray-400 focus:outline-none"
 	/>
 	<div class="flex flex-col gap-4">
 		{#each inputs as _, index}
@@ -177,7 +169,7 @@
 @import "tailwindcss";
 
 .input-item-wrap {
-	@apply flex flex-col items-stretch gap-2 px-2 py-2 border justify-stretch;
+	@apply flex flex-col items-stretch gap-2 px-2 border border-gray-400 rounded-md py-2 justify-stretch;
 }
 
 @keyframes happy {
@@ -196,5 +188,9 @@ h1.happy {
   @apply text-green-500 absolute left-0;
 	animation: happy 2s forwards;
 	position: absolute;
+}
+
+.title::after {
+	content: '📝';
 }
 </style>

@@ -9,13 +9,13 @@
 </script>
 
 <div>
-	<p class="block text-sm/6 font-medium text-gray-900">Enum items:</p>
+	<p class="block text-sm/6 font-medium text-gray-900">Choices:</p>
 	<div class="mt-2">
 		<div class="flex flex-col gap-4">
 			<ul class="list-disc" >
 			{#each input.values as val}
 				<li
-					class="shrink-0 rounded-md flex flex-row bg-white pl-3"
+					class="shrink-0 rounded-md flex flex-row bg-white px-3 pb-2"
 				>
 					<span class="block grow text py-2">
 						{val}

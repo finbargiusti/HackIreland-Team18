@@ -74,13 +74,24 @@
 			error(403, 'Failed to get next message');
 		}
 		let json = await response.json();
-		chats.push(
-			{
-				id: 'server',
-				system: true,
-				data: json.bot_question
-			}
-		);
+		const question = json.bot_question;
+		if (question) {
+			chats.push(
+				{
+					id: 'server',
+					system: true,
+					data: question
+				}
+			);
+		} else {
+			chats.push(
+				{
+					id: 'message',
+					system: true,
+					data: "All done! Thank you for your time."
+				}
+			)
+		}
 	};
 
 	onMount(async () => {
