@@ -29,7 +29,7 @@
 	});
 </script>
 
-<div class="flex min-w-100 flex-row">
+<div class="flex min-w-100 min-h-100 flex-row align-stretch">
 	<nav class="h-screen min-w-[240px] overflow-auto bg-white px-4 py-6 font-[sans-serif] shadow-lg">
 		<h3 class="px-4 pb-2 text-2xl font-bold text-red-800">ClinaTrack</h3>
 		<h4 class="px-4 pb-4 text-base font-bold text-red-700">Admin Panel</h4>
@@ -48,7 +48,7 @@
 			<AuthManager />
 		</div>
 	</nav>
-	<main class="grow bg-white px-4 py-6 shadow-sm sm:px-6 lg:px-8">
+	<main class="grow bg-white px-4 py-6 shadow-sm sm:px-6 lg:px-8 h-screen overflow-scroll">
 		{#if loggedIn !== null}
 			{#if loggedIn}
 				{@render children()}
