@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import AdminPageTitle from '$lib/AdminPageTitle.svelte';
+	import Graphs from './Graphs.svelte';
 	import { auth, firestore } from '$lib/firebase';
 	import type { Form, Result } from '$lib/form/inputs';
 	import type { User } from 'firebase/auth';
@@ -39,9 +40,9 @@
 		);
 	});
 
-  const col_types = $derived.by(() => {
-		if (data == null) return {};
-		let kv: {[key: string]: string} = {};
+	const colTypes = $derived.by(() => {
+		if (data == null) return null;
+		let kv: { [key: string]: string } = {};
 		columns.forEach((col) => {
 			const input = data!.inputs.find((input) => input.label === col);
 			if (input == null) {
@@ -83,12 +84,12 @@
 
 <AdminPageTitle>{data?.title}</AdminPageTitle>
 
-<div class="buttons w-full mb-8">
+<div class="buttons mb-8 w-full">
 	<a class="btn" onclick={downloadCsv}>Download CSV</a>
 </div>
 
 <div class="overflow-x-auto font-[sans-serif]">
-	<table class="min-w-full bg-white">
+	<table class="min-w-full bg-white table-fixed width-full">
 		<thead class="bg-gray-800 whitespace-nowrap">
 			<tr>
 				{#each columns as column}
@@ -101,14 +102,13 @@
 		<tbody class="whitespace-nowrap">
 			{#each rows as row}
 				<tr class="even:bg-blue-50">
-					{#each Object.keys(col_types) as column}
-						<td class="p-4 text-sm text-black"> {
-							(col_types[column] === 'number') ?
-								parseFloat(row[column])
-							:
-								row[column]
-						} </td>
-					{/each}
+					{#if colTypes}
+						{#each Object.keys(colTypes) as column}
+							<td class="p-4 text-sm text-black ">
+								{colTypes[column] === 'number' ? parseFloat(row[column]) : row[column]}
+							</td>
+						{/each}
+					{/if}
 					<td class="text-darkblue-800 p-4 text-sm">
 						<a href={`/admin/conversation/${row.admin_id}/${row.form_id}/${row.session_id}/`}>
 							link
@@ -120,4 +120,6 @@
 	</table>
 </div>
 
-
+{#if colTypes && rows}
+	<Graphs results={rows as Result[]} {colTypes} /> // @ts-ignore
+{/if}

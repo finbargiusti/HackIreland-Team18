@@ -6,10 +6,10 @@
 	import { page } from '$app/state';
 	import { error } from '@sveltejs/kit';
 
-	import ChatList from './ChatList.svelte';
+	import ChatList from '$lib/ChatList.svelte';
 	import AuthManager from '$lib/AuthManager.svelte';
 
-	let chats: { id: string; system: boolean; data: string }[] = $state([]);
+	let chats: { user: boolean; data: string }[] = $state([]);
 
 	const { id, uid } = page.params;
 
@@ -18,20 +18,22 @@
 	let userMessage = $state('');
 	let title = $state('');
 
-	getDoc(ref).then((doc) => {
-		if (doc.exists()) {
-			const data = doc.data() as { title: string  };
-			title = data.title as string;
-		} else {
-			throw error(404, 'No such document!');
-		}
-	}).catch((error) => {
-		console.error('Error getting document:', error);
-	});
+	getDoc(ref)
+		.then((doc) => {
+			if (doc.exists()) {
+				const data = doc.data() as { title: string };
+				title = data.title as string;
+			} else {
+				throw error(404, 'No such document!');
+			}
+		})
+		.catch((error) => {
+			console.error('Error getting document:', error);
+		});
 
-	let sessionId = $state('')
+	let sessionId = $state('');
 
-	const server_url = import.meta.env.VITE_SERVER_URL
+	const server_url = import.meta.env.VITE_SERVER_URL;
 
 	const startSession = async () => {
 		const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/start_session/${uid}/${id}`, {
@@ -51,14 +53,14 @@
 		let json = await response.json();
 		sessionId = json.session_id;
 		const question = json.bot_question;
-		chats.push(
-			{
-				id: 'server',
-				system: true,
-				data: question
-			}
-		);
-	}
+		chats.push({
+			user: false,
+			data: question
+		});
+		canChat = true;
+	};
+
+	let canChat = $state(false);
 
 	const getNextServerMessage = async (answer: string) => {
 		const response = await fetch(`${server_url}/send_message/${uid}/${id}`, {
@@ -66,9 +68,11 @@
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ 
-				patient_id: auth.currentUser!.uid, message: answer, session_id: sessionId 
-			}),
+			body: JSON.stringify({
+				patient_id: auth.currentUser!.uid,
+				message: answer,
+				session_id: sessionId
+			})
 		});
 		if (!response.ok) {
 			error(403, 'Failed to get next message');
@@ -76,23 +80,40 @@
 		let json = await response.json();
 		const question = json.bot_question;
 		if (question) {
-			chats.push(
-				{
-					id: 'server',
-					system: true,
-					data: question
-				}
-			);
+			chats.push({
+				user: false,
+				data: question
+			});
+			canChat = true;
 		} else {
-			chats.push(
-				{
-					id: 'message',
-					system: true,
-					data: "All done! Thank you for your time."
-				}
-			)
+			chats.push({
+				user: false,
+				data: 'All done! Thank you for your time.'
+			});
+			canChat = false;
 		}
 	};
+
+	let chatContainer: HTMLDivElement | null = $state(null);
+
+	$effect(() => {
+		let res = chats.slice(-1)[0];
+		if (res) {
+			chatContainer?.scrollTo({
+				top: chatContainer.scrollHeight,
+				behavior: 'smooth'
+			});
+		}
+	});
+
+	function submitMessage() {
+		chats.push({
+			user: true,
+			data: userMessage
+		});
+		getNextServerMessage(userMessage);
+		userMessage = '';
+	}
 
 	onMount(async () => {
 		chats = [];
@@ -100,39 +121,29 @@
 	});
 </script>
 
-<div class="flex h-full flex-col items-stretch">
+<div class="flex h-[calc(100vh-20px)] flex-col items-stretch">
 	<div class="flex w-full flex-row items-center px-4">
 		<h1 class="form-title">{title}</h1>
 		<AuthManager />
 	</div>
-	<ChatList bind:chats />
-	<input type="text" class="chat-input" placeholder="Type a message..." 
-	disabled={chats[chats.length - 1]?.id !== 'server'}
-	bind:value={userMessage}
-	onkeydown={(e) => {
-		if (e.key === 'Enter') {
-			chats.push(
-				{
-					id: 'user',
-					system: false,
-					data: userMessage
+	<div class="grow overflow-y-auto" bind:this={chatContainer}>
+		<ChatList bind:chats />
+	</div>
+	<div class="flex flex-row items-center justify-center gap-[-4]">
+		<input
+			type="text"
+			class="chat-input"
+			placeholder="Type a message..."
+			disabled={!canChat}
+			bind:value={userMessage}
+			onkeydown={(e) => {
+				if (e.key === 'Enter') {
+					submitMessage();
 				}
-			);
-			getNextServerMessage(userMessage);
-			userMessage=''
-		}
-	}}
-/>
+			}}
+		/>
+		<button class="submit-button"
+			onclick={submitMessage}
+			>⮐ </button>
+	</div>
 </div>
-
-<style lang="css">
-	@import 'tailwindcss';
-
-	.form-title {
-		@apply text-3xl font-bold text-slate-800 py-3 px-4 grow;
-	}
-	
-	.chat-input {
-		@apply w-full bg-gray-200 px-4 py-4 text-lg;
-	}
-</style>

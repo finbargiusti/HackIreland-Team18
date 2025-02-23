@@ -66,6 +66,7 @@ h2 {
   90% { }
   100% {
     opacity: 0;
+    pointer-events: none;
   }
 }
 
@@ -139,15 +140,37 @@ h1.warn {
 }
 
 .chat-contain {
-  @apply grow flex flex-col items-stretch w-full;
+  @apply grow flex flex-col items-stretch w-full max-w-2xl mx-auto;
 }
 
 .chat {
-  @apply py-2 px-4 bg-gray-200 text-lg;
+  @apply py-4 px-4 bg-gray-200 text-lg bg-transparent;
 }
-.chat.system {
-  @apply bg-gray-300;
+
+.chat>span {
+  @apply block py-2 px-4 rounded-2xl;
 }
-.chat>span.id {
-  @apply font-bold inline-block;
+
+.chat.system>span {
+  @apply bg-gray-200 text-black max-w-[60%] rounded-bl-none;
+}
+.chat.user>span {
+  @apply text-white float-right rounded-br-none;
+
+  background-color: var(--primary);
+}
+
+.form-title {
+  @apply grow px-4 py-3 text-3xl font-bold text-slate-800;
+}
+
+.chat-input {
+  @apply w-[100%] max-w-200 rounded-full bg-gray-200 px-6 py-4 text-lg;
+}
+
+.submit-button {
+  @apply h-12 w-12 rounded-full text-2xl text-white;
+  
+  margin-left: -3.4rem;
+  background-color: var(--primary);
 }
