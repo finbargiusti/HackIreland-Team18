@@ -2,7 +2,7 @@
 	// Here we list all the forms.
 	import { firestore, auth } from '$lib/firebase';
 
-	import { collection, getDocs, getDoc, updateDoc, doc } from 'firebase/firestore';
+	import { collection, getDocs, getDoc, updateDoc, doc, setDoc } from 'firebase/firestore';
 
 	import type { Form } from '$lib/form/inputs.d.ts';
 	import AdminPageTitle from '$lib/AdminPageTitle.svelte';
@@ -22,6 +22,15 @@
 			users = forms.map((f) => f.data.users ?? []);
 			newUser = forms.map(() => '');
 		});
+	};
+
+	const createShortLink = (url: string) => {
+		const random = Math.random().toString(36).substring(7);
+		const ref = doc(firestore, 'shorts/', random);
+		setDoc(ref, { url: url }).catch((e) => {
+			console.error(e);
+		})
+		return 's/' + random;
 	};
 
 	auth.onAuthStateChanged(getForms);
@@ -85,16 +94,12 @@
 				{#if linkState[index]}
 					<input
 						type="text"
-						value={`${window.location.origin}/form/${auth.currentUser!.uid}/${id}`}
+						value={`${window.location.origin}/${createShortLink('/form/' +auth.currentUser!.uid + '/' +id)}`}
 						class="clipboard-input" />
 				{:else}
 						<a
 							href="#"
 							onclick={() => {
-								// copy to clipboard
-								navigator.clipboard.writeText(
-									`${window.location.origin}/form/${auth.currentUser!.uid}/${id}`
-								);
 								linkState[index] = true;
 							}}
 							class="btn"

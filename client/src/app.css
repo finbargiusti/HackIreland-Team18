@@ -27,7 +27,7 @@ h2 {
 }
 
 .clipboard-input {
-  @apply bg-gray-200;
+  @apply bg-white;
 
   outline: 4px solid var(--primary-light);
   color: var(--primary-dark);

@@ -6,6 +6,8 @@
 	import { auth, firestore } from '$lib/firebase';
 	import type { Form, Result } from '$lib/form/inputs';
 	import type { User } from 'firebase/auth';
+	import type { InputType } from '$lib/form/inputs.ts';
+
 
 	import { getDoc, doc } from 'firebase/firestore';
 
@@ -42,7 +44,7 @@
 
 	const colTypes = $derived.by(() => {
 		if (data == null) return null;
-		let kv: { [key: string]: string } = {};
+		let kv: { [key: string]: InputType } = {};
 		columns.forEach((col) => {
 			const input = data!.inputs.find((input) => input.label === col);
 			if (input == null) {
@@ -89,7 +91,7 @@
 </div>
 
 <div class="overflow-x-auto font-[sans-serif]">
-	<table class="min-w-full bg-white table-fixed width-full">
+	<table class="width-full min-w-full table-fixed bg-white">
 		<thead class="bg-gray-800 whitespace-nowrap">
 			<tr>
 				{#each columns as column}
@@ -104,7 +106,7 @@
 				<tr class="even:bg-blue-50">
 					{#if colTypes}
 						{#each Object.keys(colTypes) as column}
-							<td class="p-4 text-sm text-black ">
+							<td class="p-4 text-sm text-black">
 								{colTypes[column] === 'number' ? parseFloat(row[column]) : row[column]}
 							</td>
 						{/each}
@@ -121,5 +123,5 @@
 </div>
 
 {#if colTypes && rows}
-	<Graphs results={rows as Result[]} {colTypes} /> // @ts-ignore
+	<Graphs results={rows as Result[]} {colTypes} />
 {/if}
