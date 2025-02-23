@@ -28,7 +28,7 @@ Below is the form structure we want to collect data for (in JSON):
 {data_requirements}
 
 - If the user's answer is incomplete or unclear, politely ask for clarification.
-- If the user is reluctant or cannot provide specifics, offer examples or suggestions.
+- If the user is reluctant or cannot provide specifics, give examples or suggestions.
 - If the user still won't specify, make a best guess or leave it blank.
 - Remain empathetic, encouraging, and respectful.
 
