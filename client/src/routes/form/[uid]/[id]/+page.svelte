@@ -46,8 +46,8 @@
 		}
 
 		let json = await response.json();
-		sessionId = json.sessionId;
-		const question = json.question;
+		sessionId = json.session_id;
+		const question = json.bot_question;
 		chats.push(
 			{
 				id: 'server',
@@ -60,7 +60,9 @@
 	const getNextServerMessage = async (answer: string) => {
 		const response = await fetch(`${server_url}/next_message/${uid}/${id}`, {
 			method: 'POST',
-			body: JSON.stringify({ answer, session_id: sessionId }),
+			body: JSON.stringify({ 
+				patien_id: auth.currentUser!.uid, message: answer, session_id: sessionId 
+			}),
 		});
 		if (!response.ok) {
 			error(403, 'Failed to get next message');
