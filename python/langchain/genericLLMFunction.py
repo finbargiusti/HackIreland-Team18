@@ -31,6 +31,7 @@ Below is the form structure we want to collect data for (in JSON):
 - If the user is reluctant or cannot provide specifics, give examples or suggestions.
 - If the user still won't specify, make a best guess or leave it blank.
 - Remain empathetic, encouraging, and respectful.
+- Ensure you are adding a fare share of emojis for better context
 
 Once you believe you have all necessary data, say the exact phrase:
 "I have all the information I need. We can finalize now."
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     form_inputs = [
         {
             "label": "Mood",
-            "description": "Your mood today (pick one):",
+            "description": "The mood of the patient today (pick one):",
             "data": {
                 "values": ["Terrible", "Poor", "Fair", "Good", "Great", "Excellent"],
                 "type": "choice"
@@ -115,14 +116,14 @@ if __name__ == "__main__":
         },
         {
             "label": "Sleep Duration",
-            "description": "How many hours did you sleep last night? (0-12+)",
+            "description": "How many hours did the patient sleep last night? (0-12+)",
             "data": {
                 "type": "number"
             }
         },
         {
             "label": "Additional Notes",
-            "description": "Any additional notes about how you're feeling or other details:",
+            "description": "Any additional notes about how the patient is feeling or other details:",
             "data": {
                 "type": "string"
             }
