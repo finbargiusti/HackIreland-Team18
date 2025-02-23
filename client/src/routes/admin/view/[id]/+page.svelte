@@ -77,7 +77,7 @@
 				{#each columns as column}
 					<th class="p-4 text-left text-sm font-medium text-white"> {column} </th>
 				{/each}
-				<th class="p-4 text-left text-sm font-medium text-white"> {chat log} </th>
+				<th class="p-4 text-left text-sm font-medium text-white"> chat log </th>
 			</tr>
 		</thead>
 
@@ -88,7 +88,7 @@
 						<td class="p-4 text-sm text-black"> {row[column]} </td>
 					{/each}
 					<td class="p-4 text-sm text-darkblue-800">
-						<a href={f`/admin/conversation/${row.admin_id}/${row.form_id}/${row.session_id}/`}>
+						<a href={`/admin/conversation/${row.admin_id}/${row.form_id}/${row.session_id}/`}>
 							link
 						</a>
 					</td>
