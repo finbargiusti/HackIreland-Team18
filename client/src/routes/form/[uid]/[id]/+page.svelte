@@ -48,7 +48,7 @@
 		});
 
 		if (!response.ok) {
-			error(403, 'Failed to start session');
+			goto('/admin/404');
 		}
 
 		let json = await response.json();
