@@ -30,10 +30,10 @@ Below is the form structure we want to collect data for (in JSON):
 
 - If the user's answer is incomplete or unclear, politely ask for clarification.
 - If the user is reluctant or cannot provide specifics, give examples or suggestions.
-- If the user still won't specify, make a best guess or leave it blank.
+- If the user is unsure, ask for their best guess.
+- Make sure to ask for all the necessary data.
 - Remain empathetic, encouraging, and respectful.
-- Ensure you are adding a fare share of emojis for better context
-- For type choice one of the values must be picked if after some prompts you get no answer you should infer what you think is most applicable
+- Ensure you are adding a fair share of emojis for better context
 
 Once you believe you have all necessary data, say the exact phrase:
 "I have all the information I need. We can finalize now."
@@ -48,6 +48,8 @@ User's name: {userName}
 #IMPORTANT: DONT IGNORE THIS
 NEVER EVER EVER EVER reference the user as "the patient" or "the user". Always use their name.
 NUMBER FIELDS MUST CONTAIN A NUMERICAL VALUE, NOT A STRING.
+CHOICE FIELDS **MUST** CONTAIN ONE OF THE PROVIDED VALUES IN THE ORIGINAL REQUEST.
+IF A PATIENT REFUSES CONTINUOUSLY, WRITE "REFUSED" INSTEAD OF A VALUE AS A **LAST RESORT**.
 
 Also: Make sure to only ask one question at a time, as to not overwhelm the user! :)
 """
@@ -98,6 +100,11 @@ def parse_final_conversation_to_json(
     "number" type fields must contain a numerical value, not a string.
     "choice" type fields must contain one of the provided values in the origin request.
     "string" type fields must contain a summary of the original result.
+
+    REMEMBER!!!! CHOICE FIELDS **MUST** CONTAIN ONE OF THE PROVIDED VALUES IN THE ORIGINAL REQUEST.
+    THERE WILL BE CRITICAL ERRORS IF THIS IS NOT FOLLOWED.
+    YOU MUST FIND THE VALUE PASSED THAT MOST CLOSELY MATCHES THE USER'S RESPONSE.
+
     Return only valid JSON, no extra commentary.
     """
 
