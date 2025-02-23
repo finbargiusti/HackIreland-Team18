@@ -67,7 +67,7 @@
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({ 
-				patien_id: auth.currentUser!.uid, message: answer, session_id: sessionId 
+				patient_id: auth.currentUser!.uid, message: answer, session_id: sessionId 
 			}),
 		});
 		if (!response.ok) {
