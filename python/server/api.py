@@ -213,6 +213,9 @@ def send_message(admin_id: str, form_id: str, send_req: SendMessageRequest):
             "conversation": conversation
         })
 
+        user_email = auth.get_user(patient_id).email
+        session_ref.update({"email": user_email})
+
         form_data = form_ref.get().to_dict()
 
         result = parse_final_conversation_to_json(conversation, inputs)
