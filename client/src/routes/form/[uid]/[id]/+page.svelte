@@ -78,7 +78,7 @@
 			{
 				id: 'server',
 				system: true,
-				data: json.message
+				data: json.bot_question
 			}
 		);
 	};
