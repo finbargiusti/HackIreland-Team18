@@ -36,6 +36,9 @@
 	const startSession = async () => {
 		const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/start_session/${uid}/${id}`, {
 			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
 			body: JSON.stringify({
 				patient_id: auth.currentUser!.uid
 			})
@@ -60,6 +63,9 @@
 	const getNextServerMessage = async (answer: string) => {
 		const response = await fetch(`${server_url}/next_message/${uid}/${id}`, {
 			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
 			body: JSON.stringify({ 
 				patien_id: auth.currentUser!.uid, message: answer, session_id: sessionId 
 			}),
