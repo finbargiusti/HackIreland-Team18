@@ -32,6 +32,8 @@ Below is the form structure we want to collect data for (in JSON):
 - If the user still won't specify, make a best guess or leave it blank.
 - Remain empathetic, encouraging, and respectful.
 - Ensure you are adding a fare share of emojis for better context
+- For type number absolutely ensure it is a numerical value 
+- For type choice one of the values must be picked if after some prompts you get no answer you should infer what you think is most applicable
 
 Once you believe you have all necessary data, say the exact phrase:
 "I have all the information I need. We can finalize now."
@@ -59,7 +61,7 @@ def parse_final_conversation_to_json(
     conversation_history: List[Dict[str, str]],
     parse_instructions: str,
     fieldnames: List[str]
-) -> str:
+) -> Dict:
     """
     1) Takes the entire conversation (AI said "I have all the information I need. We can finalize now.").
     2) parse_instructions: Tells GPT how to produce final JSON with keys = fieldnames.
@@ -99,7 +101,7 @@ def parse_final_conversation_to_json(
     for fn in fieldnames:
         output[fn] = parsed_data.get(fn, "")
 
-    return json.dumps(output)
+    return output
 
 
 if __name__ == "__main__":
@@ -167,14 +169,12 @@ If the user did not provide them, fill them with blank or 0. Return only valid J
             # Our final 'fieldnames' is just the list of descriptions from form_inputs
             schema_fields = [item["label"] for item in form_inputs]
 
-            final_json_str = parse_final_conversation_to_json(
+            final_data = parse_final_conversation_to_json(
                 conversation_history=conversation,
                 parse_instructions=parse_instructions,
                 fieldnames=schema_fields
             )
 
-            print("\nFinal JSON from GPT:", final_json_str)
-            final_data = json.loads(final_json_str)
             print("Parsed as dict:", final_data)
 
             print("Exiting.")
