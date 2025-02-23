@@ -12,7 +12,7 @@
   ];
 
   function sendTest() {
-    goto('/s/vx2xrf')
+    goto('/s/o0frqpe')
   }
 
   // Reactive derived data for ChatList: transform messages into expected shape.
