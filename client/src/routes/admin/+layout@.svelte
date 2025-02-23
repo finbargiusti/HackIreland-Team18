@@ -1,30 +1,24 @@
 <script lang="ts">
 	import '../../app.css';
 	import AuthManager from '$lib/AuthManager.svelte';
-	import {auth} from '$lib/firebase';
-	import { onMount } from 'svelte';
+	import { auth } from '$lib/firebase';
 	let { children } = $props();
-
-	let currentPath = $state('');
+	import { page } from '$app/state';
 
 	let pages = $derived([
 		{
 			name: 'Forms',
 			href: '/admin/forms',
-			active: currentPath.startsWith('/admin/forms')
+			active: page.url.pathname.startsWith('/admin/forms')
 		},
 		{
 			name: 'View Results',
 			href: '/admin/view',
-			active: currentPath === '/admin/view'
+			active: page.url.pathname.startsWith('/admin/view')
 		}
 	]);
 
-	onMount(() => {
-		currentPath = window.location.pathname;
-	});
-
-	let loggedIn: boolean | null = $state(null)
+	let loggedIn: boolean | null = $state(null);
 
 	auth.onAuthStateChanged((user) => {
 		if (user) {
@@ -35,101 +29,32 @@
 	});
 </script>
 
-<div class="min-h-full">
-	<nav class="bg-gray-800">
-		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-			<div class="flex h-16 items-center justify-between">
-				<div class="flex items-center">
-					<div class="shrink-0">
-						<img
-							class="size-8"
-							src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-							alt="Your Company"
-						/>
-					</div>
-					<div class="hidden md:block">
-						<div class="ml-10 flex items-baseline space-x-4">
-							<!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-							{#each pages as page}
-								<a
-									href={page.href}
-									class={page.active
-										? 'rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white'
-										: 'rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white'}
-									>{page.name}</a
-								>
-							{/each}
-							<!-- <a -->
-							<!-- 	href="/admin/view" -->
-							<!-- 	class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" -->
-							<!-- 	>View Results</a -->
-							<!-- > -->
-						</div>
-					</div>
-				</div>
-				<div class="hidden md:block">
-					<div class="ml-4 flex items-center md:ml-6">
-						<!-- Profile dropdown -->
-						<div class="relative ml-3">
-							<AuthManager />
-						</div>
-					</div>
-				</div>
-				<div class="-mr-2 flex md:hidden">
-					<!-- Mobile menu button -->
-					<button
-						type="button"
-						class="relative inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
-						aria-controls="mobile-menu"
-						aria-expanded="false"
-					>
-						<span class="absolute -inset-0.5"></span>
-						<span class="sr-only">Open main menu</span>
-						<!-- Menu open: "hidden", Menu closed: "block" -->
-						<svg
-							class="block size-6"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							aria-hidden="true"
-							data-slot="icon"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-							/>
-						</svg>
-						<!-- Menu open: "block", Menu closed: "hidden" -->
-						<svg
-							class="hidden size-6"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							aria-hidden="true"
-							data-slot="icon"
-						>
-							<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-						</svg>
-					</button>
-				</div>
-			</div>
+<div class="flex min-w-100 flex-row">
+	<nav class="h-screen min-w-[240px] overflow-auto bg-white px-4 py-6 font-[sans-serif] shadow-lg">
+		<h3 class="px-4 pb-2 text-2xl font-bold text-red-800">ClinaTrack</h3>
+		<h4 class="px-4 pb-4 text-base font-bold text-red-700">Admin Panel</h4>
+		{#each pages as page}
+			<a
+				href={page.href}
+				class={page.active
+					? 'mb-2 block rounded bg-red-50 px-4 py-2.5 text-[15px] text-red-600 transition-all '
+					: 'mb-2 block rounded px-4 py-2.5 text-[15px] text-black transition-all hover:bg-red-50 hover:text-red-600'}
+				>{page.name}</a
+			>
+		{/each}
+
+		<div class="mt-4">
+			<h6 class="px-4 text-sm font-bold text-red-600">Account</h6>
+			<AuthManager />
 		</div>
 	</nav>
-
-	<main>
-		<div class="mx-auto max-w-7xl">
-			<div class="bg-white shadow-sm px-4 py-6 sm:px-6 lg:px-8">
-				{#if loggedIn !== null}
-					{#if loggedIn}
-						{@render children()}
-					{:else}
-						<h1 class="text-5xl">You are not logged in.</h1>
-					{/if}
-				{/if}
-			</div>
-		</div>
+	<main class="grow bg-white px-4 py-6 shadow-sm sm:px-6 lg:px-8">
+		{#if loggedIn !== null}
+			{#if loggedIn}
+				{@render children()}
+			{:else}
+				<h1 class="text-5xl">You are not logged in.</h1>
+			{/if}
+		{/if}
 	</main>
 </div>

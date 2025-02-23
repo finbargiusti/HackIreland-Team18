@@ -33,7 +33,7 @@ auth.onAuthStateChanged(getForms)
 	{/if}
 
 	{#each forms as { id, data }}
-		<div class="flex flex-row gap-2 items-center px-2 py-3 br-3 border">
+		<div class="flex flex-row gap-4 items-center px-2 py-3 br-3">
 			<h2>{data.title}</h2>
 			<button class="btn" onclick={() => goto('/admin/forms/edit/' + id)}>Edit</button>
 			<a href={`/form/${auth.currentUser!.uid}/${id}`} class="btn">Form link</a>

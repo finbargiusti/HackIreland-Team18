@@ -34,8 +34,11 @@
 	const server_url = import.meta.env.VITE_SERVER_URL
 
 	const startSession = async () => {
-		const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/start_session/${uid}/${id}/${auth.currentUser!.uid}`, {
-			method: 'POST'
+		const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/start_session/${uid}/${id}`, {
+			method: 'POST',
+			body: JSON.stringify({
+				patient_id: auth.currentUser!.uid
+			})
 		});
 
 		if (!response.ok) {
@@ -55,9 +58,9 @@
 	}
 
 	const getNextServerMessage = async (answer: string) => {
-		const response = await fetch(`${server_url}/next_message/${uid}/${id}/${sessionId}`, {
-			method: 'GET',
-			body: JSON.stringify({ answer }),
+		const response = await fetch(`${server_url}/next_message/${uid}/${id}`, {
+			method: 'POST',
+			body: JSON.stringify({ answer, session_id: sessionId }),
 		});
 		if (!response.ok) {
 			error(403, 'Failed to get next message');
