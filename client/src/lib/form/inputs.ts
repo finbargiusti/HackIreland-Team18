@@ -13,6 +13,8 @@ type InputString = {
 
 type InputData = InputChoice | InputNumber | InputString;
 
+type InputType = InputData['type'];
+
 type InputField = {
 	description: string;
 	data: InputData;
@@ -34,7 +36,7 @@ type Form = {
 	results: Result[]
 }
 
-export type { InputField, InputData, InputChoice, Form, Result }
+export type { InputField, InputData, InputChoice, Form, Result, InputType }
 
 const inputIssues = (input: InputField, id: string): string[] => {
 	let issues = [];

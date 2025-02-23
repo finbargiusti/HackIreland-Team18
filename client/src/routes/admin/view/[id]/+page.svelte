@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import AdminPageTitle from '$lib/AdminPageTitle.svelte';
 	import { auth, firestore } from '$lib/firebase';
 	import type { Form, Result } from '$lib/form/inputs';
 	import type { User } from 'firebase/auth';
@@ -38,13 +39,19 @@
 		);
 	});
 
-	const col_types = $derived.by(() => {
-		if (data == null) return [];
-		return columns.map((col) => {
+  const col_types = $derived.by(() => {
+		if (data == null) return {};
+		let kv: {[key: string]: string} = {};
+		columns.forEach((col) => {
 			const input = data!.inputs.find((input) => input.label === col);
-			if (input == null) return 'text';
-			return input.data.type;
-	})});
+			if (input == null) {
+				kv[col] = 'string';
+			} else {
+				kv[col] = input.data.type;
+			}
+		});
+		return kv;
+	});
 
 	const rows = $derived.by(() => {
 		if (data == null) return [];
@@ -74,6 +81,8 @@
 	auth.onAuthStateChanged(getForm);
 </script>
 
+<AdminPageTitle>{data?.title}</AdminPageTitle>
+
 <div class="buttons w-full mb-8">
 	<a class="btn" onclick={downloadCsv}>Download CSV</a>
 </div>
@@ -92,9 +101,9 @@
 		<tbody class="whitespace-nowrap">
 			{#each rows as row}
 				<tr class="even:bg-blue-50">
-					{#each columns as column}
+					{#each Object.keys(col_types) as column}
 						<td class="p-4 text-sm text-black"> {
-							(col_types[columns.indexOf(column)] === 'number') ?
+							(col_types[column] === 'number') ?
 								parseFloat(row[column])
 							:
 								row[column]
@@ -110,3 +119,5 @@
 		</tbody>
 	</table>
 </div>
+
+

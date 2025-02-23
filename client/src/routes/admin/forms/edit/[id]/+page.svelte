@@ -91,10 +91,14 @@
 
 	const scrollToBottom = () => {
 		const parent = windowDiv?.parentElement;
-		setTimeout(() => parent?.scrollTo({
-			top: parent?.scrollHeight,
-			behavior: 'smooth'
-			}), 0);
+		setTimeout(
+			() =>
+				parent?.scrollTo({
+					top: parent?.scrollHeight,
+					behavior: 'smooth'
+				}),
+			0
+		);
 	};
 </script>
 

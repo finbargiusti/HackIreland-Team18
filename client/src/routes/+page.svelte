@@ -1,2 +1,4 @@
-<h1 class="big-title">Welcome to <bold>TBD</bold></h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<div class="flex flex-col justify-center items-center h-page">
+	<h1 class="text-regular">Welcome to <bold>ClinaTrack!</bold></h1>
+	<p>There's not much here.. head over to the <a class="text-blue-400" href="/admin">admin</a> dashboard to get started!</p>
+</div>

@@ -29,18 +29,12 @@
 	});
 </script>
 
-<div class="flex min-w-100 min-h-100 flex-row align-stretch">
+<div class="align-stretch flex min-h-100  flex-row">
 	<nav>
 		<h3 class="">ClinaTrack</h3>
 		<h4 class="">Admin Panel</h4>
 		{#each pages as page}
-			<a
-				href={page.href}
-				class={page.active
-					? 'nav-link-active'
-					: 'nav-link'}
-				>{page.name}</a
-			>
+			<a href={page.href} class={page.active ? 'nav-link-active' : 'nav-link'}>{page.name}</a>
 		{/each}
 
 		<div class="mt-4">
@@ -48,13 +42,15 @@
 			<AuthManager />
 		</div>
 	</nav>
-	<main>
-		{#if loggedIn !== null}
-			{#if loggedIn}
-				{@render children()}
-			{:else}
-				<h1 class="text-5xl">You are not logged in.</h1>
+	<div class="flex flex-row justify-center w-full overflow-x-scroll">
+		<main class="max-w-300">
+			{#if loggedIn !== null}
+				{#if loggedIn}
+					{@render children()}
+				{:else}
+					<h1 class="text-5xl">You are not logged in.</h1>
+				{/if}
 			{/if}
-		{/if}
-	</main>
+		</main>
+	</div>
 </div>

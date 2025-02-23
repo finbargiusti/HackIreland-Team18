@@ -120,7 +120,7 @@ nav .subtitle {
 }
 
 main {
-   @apply grow bg-transparent px-4 py-6 shadow-sm sm:px-6 lg:px-8 h-screen overflow-scroll
+   @apply grow bg-transparent px-4 py-6 sm:px-6 lg:px-8 h-screen 
 }
 
 .email {
