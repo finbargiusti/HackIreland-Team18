@@ -19,11 +19,18 @@ h2 {
   @apply text-3xl font-bold ml-1;
 }
 
-.btn {
+.btn, .clipboard-input {
   @apply text-white font-bold py-2 px-4 rounded text-center;
 
   background-color: var(--primary);
   pointer: cursor !important; /* cursed */
+}
+
+.clipboard-input {
+  @apply bg-gray-200;
+
+  outline: 4px solid var(--primary-light);
+  color: var(--primary-dark);
 }
 
 .btn:hover {
@@ -56,14 +63,14 @@ h2 {
 
 @keyframes happy-in-out {
   0% {
-    transform: translateX(-50%) scale(1.1);
     opacity: 0;
   }
   5% {
-    transform: translateX(-50%) scale(1);
     opacity: 1;
   }
-  90% { }
+  90% { 
+    opacity: 1;
+  }
   100% {
     opacity: 0;
     pointer-events: none;
@@ -71,11 +78,13 @@ h2 {
 }
 
 .box.happy {
-  @apply bg-green-100 text-green-500 flex flex-row justify-center items-center;
+  @apply bg-green-100 text-green-500 flex flex-row justify-center items-center px-4 py-2 min-h-auto max-w-20;
 
-  left: 50%;
-  transform: translateX(-50%);
-  animation: happy-in-out 2s ease-in-out forwards;
+  position: relative;
+  top: 20px;
+  left: 260px;
+  position: absolute;
+  animation: happy-in-out 4s ease-in-out forwards;
 }
 
 .box.invisible {

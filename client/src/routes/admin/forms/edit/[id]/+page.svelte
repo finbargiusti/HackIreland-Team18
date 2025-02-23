@@ -15,16 +15,12 @@
 	let title = $state('');
 	let inputs: InputField[] = $state([]);
 
-	let newUser = $state('');
-	let users: string[] = $state([]);
-
 	getDoc(ref)
 		.then((doc) => {
 			if (doc.exists()) {
 				const data = doc.data();
 				title = data.title as string;
 				inputs = data.inputs as InputField[];
-				users = data.users as string[];
 				loading = false;
 			} else {
 				errors.push('No such document!');
@@ -40,7 +36,7 @@
 		() => {
 			saved = true;
 		},
-		200,
+		2000,
 		{ immediate: true }
 	);
 
@@ -115,7 +111,7 @@
 	</div>
 {:else}
 	<div class={['box', saved ? 'happy' : 'invisible', 'absolute', 'w-100']}>
-		<h1 class="happy">Synced!</h1>
+		<p class="happy">Synced!</p>
 	</div>
 {/if}
 {#if !loading}

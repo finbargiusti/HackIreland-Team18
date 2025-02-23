@@ -7,7 +7,7 @@
 		colTypes: { [key: string]: InputType };
 	};
 
-	const { results, colTypes } : Props= $props() ;
+	const { results, colTypes }: Props = $props();
 
 	let candidates = Object.keys(colTypes)
 		.filter((k) => ['number', 'choice'].includes(colTypes[k]))

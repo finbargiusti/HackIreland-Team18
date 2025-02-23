@@ -18,7 +18,7 @@
 				id: doc.id,
 				data: doc.data() as Form
 			}));
-			clipboardStates = forms.map(() => false);
+			linkState = forms.map(() => false);
 			users = forms.map((f) => f.data.users ?? []);
 			newUser = forms.map(() => '');
 		});
@@ -40,7 +40,7 @@
 
 	let newUser = $state([] as string[]);
 	let users: string[][] = $state([]);
-	let clipboardStates = $state([] as boolean[]);
+	let linkState = $state([] as boolean[]);
 </script>
 
 <AdminPageTitle>Your Forms</AdminPageTitle>
@@ -82,20 +82,26 @@
 			</div>
 			<div class="buttons">
 				<a href="#" class="btn" onclick={() => goto('/admin/forms/edit/' + id)}>Edit</a>
-				<a
-					href="#"
-					onclick={() => {
-						// copy to clipboard
-						navigator.clipboard.writeText(
-							`${window.location.origin}/form/${auth.currentUser!.uid}/${id}`
-						);
-						clipboardStates[index] = true;
-						setTimeout(() => (clipboardStates[index] = false), 1000);
-					}}
-					class="btn"
-				>
-					{clipboardStates[index] ? 'Copied ✨' : 'Copy form link'}
-				</a>
+				{#if linkState[index]}
+					<input
+						type="text"
+						value={`${window.location.origin}/form/${auth.currentUser!.uid}/${id}`}
+						class="clipboard-input" />
+				{:else}
+						<a
+							href="#"
+							onclick={() => {
+								// copy to clipboard
+								navigator.clipboard.writeText(
+									`${window.location.origin}/form/${auth.currentUser!.uid}/${id}`
+								);
+								linkState[index] = true;
+							}}
+							class="btn"
+						>
+							Get form link
+						</a>
+				{/if}
 			</div>
 		</div>
 	{/each}
