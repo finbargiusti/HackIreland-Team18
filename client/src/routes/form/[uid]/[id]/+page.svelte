@@ -61,7 +61,7 @@
 	}
 
 	const getNextServerMessage = async (answer: string) => {
-		const response = await fetch(`${server_url}/next_message/${uid}/${id}`, {
+		const response = await fetch(`${server_url}/send_message/${uid}/${id}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
