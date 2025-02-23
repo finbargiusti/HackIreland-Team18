@@ -40,6 +40,8 @@ Once you believe you have all necessary data, say the exact phrase:
 
 After that, do not ask further questions—just wait for finalization.
 Be empathetic, but thorough.
+
+Also: Make sure to only ask one question at a time, as to not overwhelm the user! :)
 """
 
     messages = [{"role": "system", "content": system_prompt}]
@@ -49,15 +51,15 @@ Be empathetic, but thorough.
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=messages,
-            temperature=0.7,
-            max_tokens=300
+            temperature=0,
+            max_tokens=70
         )
         done = False
-        for message in completion.choices:
+        for message in completion.choices: #type: ignore
             if "I have all the information I need. We can finalize now." in message.message.content:
                 done = True
                 break
-        return completion.choices[0].message.content, done
+        return completion.choices[0].message.content, done #type: ignore
     except Exception as e:
         return f"Error calling OpenAI: {str(e)}", False
 

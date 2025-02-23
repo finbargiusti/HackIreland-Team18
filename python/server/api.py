@@ -1,6 +1,7 @@
 import sys
 import os
 import datetime
+import json
 from typing import Union, List, Dict
 
 from fastapi import FastAPI, HTTPException, Body
@@ -129,7 +130,7 @@ def start_session(admin_id: str, form_id: str, start_req: StartSessionRequest):
     # Initialize conversation history as an empty list.
     conversation: List[Dict[str, str]] = []
     # Generate the initial question using the first input's description.
-    initial_question = generateLlmResponse(inputs[0]["description"], conversation)
+    initial_question, _ = generateLlmResponse(json.dumps(inputs), conversation)
     conversation.append({"role": "assistant", "content": initial_question})
 
     # Prepare the session document data.
@@ -173,10 +174,11 @@ def send_message(admin_id: str, form_id: str, send_req: SendMessageRequest):
     patient_id = send_req.patient_id
     message = send_req.message
 
+    form_ref =  db.collection("admin").document(admin_id)\
+                    .collection("forms").document(form_id)
+
     # Retrieve the session document using the full path.
-    session_ref = db.collection("admin").document(admin_id)\
-                    .collection("forms").document(form_id)\
-                    .collection("sessions").document(session_id)
+    session_ref = form_ref.collection("sessions").document(session_id)
     session_doc = session_ref.get()
     if not session_doc.exists:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -195,7 +197,7 @@ def send_message(admin_id: str, form_id: str, send_req: SendMessageRequest):
 
     # If there is another input field pending, generate the next question.
     new_index = current_index + 1
-    next_question, done = generateLlmResponse(inputs[new_index]["description"], conversation)
+    next_question, done = generateLlmResponse(json.dumps(inputs), conversation)
     if not done:
         conversation.append({"role": "assistant", "content": next_question})
         # Update the session: advance the current field index and save the updated conversation.
@@ -211,13 +213,18 @@ def send_message(admin_id: str, form_id: str, send_req: SendMessageRequest):
             "conversation": conversation
         })
 
+        form_data = form_ref.get().to_dict()
+
         result = parse_final_conversation_to_json(conversation, inputs)
         # add some additional data to the result:
         result["email"] = auth.get_user(patient_id).email
         result["form_id"] = form_id
         result["admin_id"] = admin_id
+        result["session_id"] = session_id
         result["date"] = datetime.datetime.utcnow().isoformat()
-        session_ref.update({"result": result})
+        results = form_data.get("results", [])
+        results.append(result)
+        form_ref.update({"results": results})
 
         return {"message": "Session complete"}
 
