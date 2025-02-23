@@ -13,7 +13,6 @@ h2 {
   @apply text-3xl font-bold ml-1;
 }
 
-
 .btn {
   @apply bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-400;
 }

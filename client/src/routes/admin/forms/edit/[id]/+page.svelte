@@ -3,11 +3,10 @@
 	import FormInputItem from '$lib/form/FormInputItem.svelte';
 	import { inputIssues, type InputField } from '$lib/form/inputs';
 	import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-	import { page } from '$app/stores';
-	import { onDestroy, onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
-	const ref = doc(firestore, 'admin/' + auth.currentUser?.uid + '/forms', $page.params.id);
+	const ref = doc(firestore, 'admin/' + auth.currentUser?.uid + '/forms', page.params.id);
 
 	let loading = $state(true);
 	let errors: string[] = $state([]);

@@ -22,6 +22,8 @@ type InputField = {
 type Result = {
 	date: string,
 	email: string,
+	form_id: string,
+	admin_id: string,
 	[key: string]: string
 }
 
@@ -32,7 +34,7 @@ type Form = {
 	results: Result[]
 }
 
-export type { InputField, InputData, InputChoice, Form }
+export type { InputField, InputData, InputChoice, Form, Result }
 
 const inputIssues = (input: InputField, id: string): string[] => {
 	let issues = [];

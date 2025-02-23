@@ -3,7 +3,7 @@
 	import { doc, getDoc } from 'firebase/firestore';
 
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { error } from '@sveltejs/kit';
 
 	import ChatList from './ChatList.svelte';
@@ -11,7 +11,7 @@
 
 	let chats: { id: string; system: boolean; data: string }[] = $state([]);
 
-	const { id, uid } = $page.params;
+	const { id, uid } = page.params;
 
 	const ref = doc(firestore, 'admin/' + uid + '/forms', id);
 

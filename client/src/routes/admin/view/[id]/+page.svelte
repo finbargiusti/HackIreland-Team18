@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { auth, firestore } from '$lib/firebase';
-	import type { Form } from '$lib/form/inputs';
+	import type { Form, Result} from '$lib/form/inputs';
 	import type { User } from 'firebase/auth';
 
 	import { getDoc, doc } from 'firebase/firestore';
@@ -29,40 +29,44 @@
 			});
 	};
 
+	const BANNED_COLS = ['form_id', 'admin_id', 'session_id'];
+
 	const columns = $derived.by(() => {
 		if (data == null) return [];
-		return [...data.inputs.map((input) => input.label), 'date', 'email'];
+		return [...data.inputs.map((input) => input.label), 'date', 'email'].filter(
+			(col) => !BANNED_COLS.includes(col)
+		);
 	});
 
 	const rows = $derived.by(() => {
 		if (data == null) return [];
-		return data.results;
+		return data.results
 	});
 
 	const toCsv = (data: Form) => {
-		let csv = ''
-		csv += data.inputs.map(input => input.label).join(',') + '\n'
-		data.results.forEach(result => {
-			csv += data.inputs.map(input => result[input.label]).join(',') + '\n'
-		})
-		return csv
-	}
+		let csv = '';
+		csv += data.inputs.map((input) => input.label).join(',') + '\n';
+		data.results.forEach((result) => {
+			csv += data.inputs.map((input) => result[input.label].replace(',', '，')).join(',') + '\n';
+		});
+		return csv;
+	};
 
 	const downloadCsv = () => {
-		if (data == null) return
-		const csv = toCsv(data)
-		const blob = new Blob([csv], { type: 'text/csv' })
-		const url = URL.createObjectURL(blob)
-		const a = document.createElement('a')
-		a.href = url
-		a.download = `${data.title}.csv`
-		a.click()
-	}
+		if (data == null) return;
+		const csv = toCsv(data);
+		const blob = new Blob([csv], { type: 'text/csv' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${data.title}.csv`;
+		a.click();
+	};
 
 	auth.onAuthStateChanged(getForm);
 </script>
 
-<div class="flex justify-start items-center gap-4">
+<div class="flex items-center justify-start gap-4">
 	<button class="btn" onclick={downloadCsv}>Download CSV</button>
 </div>
 
@@ -73,6 +77,7 @@
 				{#each columns as column}
 					<th class="p-4 text-left text-sm font-medium text-white"> {column} </th>
 				{/each}
+				<th class="p-4 text-left text-sm font-medium text-white"> {chat log} </th>
 			</tr>
 		</thead>
 
@@ -82,6 +87,11 @@
 					{#each columns as column}
 						<td class="p-4 text-sm text-black"> {row[column]} </td>
 					{/each}
+					<td class="p-4 text-sm text-darkblue-800">
+						<a href={f`/admin/conversation/${row.admin_id}/${row.form_id}/${row.session_id}/`}>
+							link
+						</a>
+					</td>
 				{/each}
 			</tr>
 		</tbody>
