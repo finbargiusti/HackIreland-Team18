@@ -62,7 +62,7 @@ Also: Make sure to only ask one question at a time, as to not overwhelm the user
             model="gpt-3.5-turbo",
             messages=messages,
             temperature=0.2,
-            max_tokens=70
+            max_tokens=300
         )
         done = False
         for message in completion.choices: #type: ignore

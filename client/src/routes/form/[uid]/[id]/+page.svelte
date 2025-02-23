@@ -8,6 +8,7 @@
 
 	import ChatList from '$lib/ChatList.svelte';
 	import AuthManager from '$lib/AuthManager.svelte';
+	import { goto } from '$app/navigation';
 
 	let chats: { user: boolean; data: string }[] = $state([]);
 
@@ -75,7 +76,7 @@
 			})
 		});
 		if (!response.ok) {
-			error(403, 'Failed to get next message');
+			goto('/admin/404');
 		}
 		let json = await response.json();
 		const question = json.bot_question;
