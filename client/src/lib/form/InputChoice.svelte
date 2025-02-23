@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { EnumData } from '$lib/form/inputs.d.ts';
-	type Props = { input: EnumData };
+	import type { InputChoice } from '$lib/form/inputs.d.ts';
+	type Props = { input: InputChoice };
 	let { input = $bindable() }: Props = $props();
 	let addValue = (a: string) => {
 		input.values.push(a);
