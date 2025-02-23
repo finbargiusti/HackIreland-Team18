@@ -19,6 +19,23 @@ from langchain.genericLLMFunction import generateLlmResponse
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Initialize Firebase Admin with your service account key.
 cred = credentials.Certificate("firestore_key.json")
 firebase_admin.initialize_app(cred)
