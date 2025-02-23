@@ -12,7 +12,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def generateLlmResponse(
     data_requirements: str,
     conversation_history: List[Dict[str, str]]
-) -> str:
+) -> tuple[str, bool]:
     """
     data_requirements: a JSON string describing the form inputs (e.g. choice, number, string).
     conversation_history: the messages so far (user/assistant roles).
@@ -52,15 +52,19 @@ Be empathetic, but thorough.
             temperature=0.7,
             max_tokens=300
         )
-        return completion.choices[0].message.content
+        done = False
+        for message in completion.choices:
+            if "I have all the information I need. We can finalize now." in message.message.content:
+                done = True
+                break
+        return completion.choices[0].message.content, done
     except Exception as e:
-        return f"Error calling OpenAI: {str(e)}"
+        return f"Error calling OpenAI: {str(e)}", False
 
 
 def parse_final_conversation_to_json(
     conversation_history: List[Dict[str, str]],
-    parse_instructions: str,
-    fieldnames: List[str]
+    fields: List[Dict[str, object]]
 ) -> Dict:
     """
     1) Takes the entire conversation (AI said "I have all the information I need. We can finalize now.").
@@ -68,6 +72,23 @@ def parse_final_conversation_to_json(
     3) fieldnames: The keys we expect in the final JSON.
 
     Returns a JSON string with those keys, or empty if not provided.
+    """
+
+    parse_instructions = f"""
+    You are now a data parser. Please output valid JSON with the following fields, PAYING ATTENTION to the original instructions:
+    {'{'}
+    {
+        ''',
+        '''.join([
+            f'"{field["label"]}": ""' for field in fields
+        ])
+    }
+    {'}'}
+    If the user did not provide them, fill them with blank or 0.
+    "number" type fields must contain a numerical value, not a string.
+    "choice" type fields must contain one of the provided values in the origin request.
+    "string" type fields must contain a summary of the original result.
+    Return only valid JSON, no extra commentary.
     """
 
     # Combine conversation + system instructions
@@ -87,9 +108,6 @@ def parse_final_conversation_to_json(
         print("Error calling OpenAI for parsing:", str(e))
         raise e
 
-    print("\nDEBUG: GPT parse result:", json_reply)
-
-    # Attempt to parse GPT's reply as JSON
     try:
         parsed_data = json.loads(json_reply)
     except json.JSONDecodeError as e:
@@ -97,6 +115,7 @@ def parse_final_conversation_to_json(
         raise e
 
     # Fill missing fields with ""
+    fieldnames = [field['label'] for field in fields]
     output = {}
     for fn in fieldnames:
         output[fn] = parsed_data.get(fn, "")

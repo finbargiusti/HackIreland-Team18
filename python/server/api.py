@@ -15,7 +15,7 @@ parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-from langchain.genericLLMFunction import generateLlmResponse
+from langchain.genericLLMFunction import generateLlmResponse, parse_final_conversation_to_json
 
 app = FastAPI()
 
@@ -187,16 +187,16 @@ def send_message(admin_id: str, form_id: str, send_req: SendMessageRequest):
     conversation: List[Dict[str, str]] = session_data.get("conversation", [])
 
     # Check if the session is already complete.
-    if current_index >= len(inputs):
-        raise HTTPException(status_code=400, detail="Session already complete")
+    # if current_index >= len(inputs):
+    #     raise HTTPException(status_code=400, detail="Session already complete")
 
     # Append the patient's message to the conversation history.
     conversation.append({"role": "user", "content": message})
 
     # If there is another input field pending, generate the next question.
-    if current_index < len(inputs) - 1:
-        new_index = current_index + 1
-        next_question = generateLlmResponse(inputs[new_index]["description"], conversation)
+    new_index = current_index + 1
+    next_question, done = generateLlmResponse(inputs[new_index]["description"], conversation)
+    if not done:
         conversation.append({"role": "assistant", "content": next_question})
         # Update the session: advance the current field index and save the updated conversation.
         session_ref.update({
@@ -210,7 +210,22 @@ def send_message(admin_id: str, form_id: str, send_req: SendMessageRequest):
             "current_field_index": current_index + 1,
             "conversation": conversation
         })
+
+        result = parse_final_conversation_to_json(conversation, inputs)
+        # add some additional data to the result:
+        result["email"] = auth.get_user(patient_id).email
+        result["form_id"] = form_id
+        result["admin_id"] = admin_id
+        result["date"] = datetime.datetime.utcnow().isoformat()
+        session_ref.update({"result": result})
+
         return {"message": "Session complete"}
+
+def get_result_json(conversation, fields):
+    """
+    Parse the final conversation into a JSON object using the provided field descriptions.
+    """
+    return parse_final_conversation_to_json(conversation, fields)
 
 @app.get("/receive_message/{admin_id}/{form_id}/{session_id}")
 def get_messages(admin_id: str, form_id: str, session_id: str):
