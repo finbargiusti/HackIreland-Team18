@@ -33,10 +33,10 @@
 
 	let sessionId = $state('');
 
-	const server_url = import.meta.env.VITE_SERVER_URL;
+	let server_url = $state('');
 
 	const startSession = async () => {
-		const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/start_session/${uid}/${id}`, {
+		const response = await fetch(`${server_url}/start_session/${uid}/${id}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -115,9 +115,15 @@
 		userMessage = '';
 	}
 
+	$effect(() => {
+		if (server_url !== '') {
+			startSession();
+		}
+	})
+
 	onMount(async () => {
 		chats = [];
-		startSession();
+		server_url = location.protocol + '//'+ location.host.split(':')[0] + ':8000';
 	});
 </script>
 

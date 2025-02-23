@@ -9,6 +9,24 @@
   @apply pointer-events-auto;
 }
 
+input {
+  color: #111111;
+}
+
+input:hover {
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+input:focus:hover {
+  box-shadow: 0 0 0 2px var(--primary-light);
+  outline:none;
+}
+
+input:focus {
+  outline:none;
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
 h1 {
   @apply text-5xl font-bold;
 
